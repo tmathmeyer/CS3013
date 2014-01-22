@@ -27,7 +27,10 @@ char** split_args(char* buffer)
 	toks = strtok (buffer," ");
 	while (toks != NULL)
 	{
-		*(writer++) = toks;
+		char* arg = (char*)(malloc(sizeof(char) * (strlen(toks) + 1)));
+		strcpy(arg, toks);
+		strcat(arg, "\0");
+		*(writer++) = arg;
 		toks = strtok (NULL, " ");
 	}
 	free(toks);
@@ -52,8 +55,13 @@ int main()
 		if (c == '\n')
 		{
 			char** args = split_args(buffer);
+			printf("%c%c%c%c\n", args[0][0], args[0][1], args[0][2], args[0][3]);
+			printf("%c%c%c%c\n", args[0][0], args[0][1], args[0][2], args[0][3]);
 
-			if (strcmp("exit", args[0]) == 0)
+			int val = (args[0][0]=='e')+(args[0][1]=='x')+(args[0][2]=='i')+(args[0][3]=='t');
+			printf("so the if statement SHOULD be fine");
+
+			if (val == 4)
 			{
 				printf("this should be printed, no?");
 				continuation = 0;
