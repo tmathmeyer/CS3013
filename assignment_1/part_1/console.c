@@ -56,12 +56,16 @@ int main()
 		{
 			char** args = split_args(buffer);
 			printf("%c%c%c%c\n", args[0][0], args[0][1], args[0][2], args[0][3]);
-			printf("%c%c%c%c\n", args[0][0], args[0][1], args[0][2], args[0][3]);
+			printf("%i %i %i %i\n", args[0][0], args[0][1], args[0][2], args[0][3]);
+			printf("%i %i %i %i\n", 'e','x','i','t');
 
-			int val = (args[0][0]=='e')+(args[0][1]=='x')+(args[0][2]=='i')+(args[0][3]=='t');
-			printf("so the if statement SHOULD be fine");
+			printf("a");
+			int val = (args[0][0]==101)+(args[0][1]==120);
+			printf("b");
+			int mal = (args[0][3]==116)+(args[0][2]==105);
+			printf("c");
 
-			if (val == 4)
+			if (val*mal == 4)
 			{
 				printf("this should be printed, no?");
 				continuation = 0;
