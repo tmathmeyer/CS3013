@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "proc_info_mgr.h"
 #include "doit.h"
 
@@ -37,6 +38,7 @@ char** split_args(char* buffer)
 
 int main()
 {
+	int continuation = 1;
 	printf("~~$ ");
 	char* buffer = (char*)malloc(128);
 	int bufferspace = 0;
@@ -44,18 +46,42 @@ int main()
 	proc_info *p = get_init();
 
 
-	while(c != EOF)
+	while(c != EOF && continuation)
 	{
 		c = getchar();
 		if (c == '\n')
 		{
-			char** qq = split_args(buffer);
+			char** args = split_args(buffer);
 
-			
-			proc_info **p2 = execute(qq, p);
-			p = p2[0];
+			if (strcmp("exit", args[0]) == 0)
+			{
+				printf("this should be printed, no?");
+				continuation = 0;
+			}
+			else if (strcmp("cd", args[0]) == 0)
+			{
+				char dir[1024];
+				if (args[1])
+				{
+					chdir(args[1]);
+				}
+				else
+				{
+					chdir("/home/ted");
+				}
 
-			print_info(p2[1]);
+				if (getcwd(dir, sizeof(dir)) != NULL)
+				{
+					printf("%s\n", dir);
+				}
+			}
+			else
+			{
+				proc_info **p2 = execute(args, p);
+				p = p2[0];
+
+				print_info(p2[1]);
+			}
 
 			memset(buffer, 0, 128);
 			bufferspace = 0;
@@ -69,4 +95,6 @@ int main()
 			buffer[bufferspace++] = c;
 		}
 	}
+
+	return 0;
 }
