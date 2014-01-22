@@ -9,7 +9,7 @@
 
 char** split_args(char* buffer)
 {
-	char* clone;
+	char* clone = (char*)(malloc(128));
 	int   count = 0;
 	strncpy(clone, buffer, 128);
 
@@ -47,7 +47,7 @@ int change_dir(char* dirname)
 	}
 	else
 	{
-		chdir("~");
+		chdir("/");
 	}
 
 	if (getcwd(dir, sizeof(dir)) != NULL)
@@ -56,16 +56,17 @@ int change_dir(char* dirname)
 	}
 }
 
-int main()
+int main(int argc, char*argv[])
 {
 	printf("~~$ ");
 	char* buffer = (char*)malloc(128);
 	int bufferspace = 0;
+	int exeunt = 0;
 	char c = 0;
 	proc_info *p = get_init();
 
 
-	while(c != EOF )
+	while(exeunt == 0)
 	{
 		c = getchar();
 		if (c == '\n')
@@ -74,7 +75,7 @@ int main()
 
 			if (strcmp("exit", args[0]) == 0)
 			{
-				return 0;
+				exeunt = 1;
 			}
 			else if (strcmp("cd", args[0]) == 0)
 			{
