@@ -56,18 +56,10 @@ int main()
 		{
 			char** args = split_args(buffer);
 
-			printf("\n%i\n", strcmp("exit", args[0]));
-			printf("\n%i\n", strcmp("exit", args[0]));
-			printf("\n%i\n", strcmp("exit", args[0]));
-			printf("\n%i\n", strcmp("exit", args[0]));
-			printf("\n%i\n", strcmp("exit", args[0]));
-			printf("\n%i\n", strcmp("exit", args[0]));
-			printf("\n%i\n", strcmp("exit", args[0]));
-
 			if (strcmp("exit", args[0]) == 0)
 			{
 				printf("this should be printed, no?");
-				//continuation = 0;
+				return 0;
 			}
 			else if (strcmp("cd", args[0]) == 0)
 			{
@@ -96,10 +88,6 @@ int main()
 
 			memset(buffer, 0, 128);
 			bufferspace = 0;
-		}
-		else if (c == 127)
-		{
-			printf("\b \b\b \b");
 		}
 		else
 		{
