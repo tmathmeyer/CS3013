@@ -55,20 +55,19 @@ int main()
 		if (c == '\n')
 		{
 			char** args = split_args(buffer);
-			printf("%c%c%c%c\n", args[0][0], args[0][1], args[0][2], args[0][3]);
-			printf("%i %i %i %i\n", args[0][0], args[0][1], args[0][2], args[0][3]);
-			printf("%i %i %i %i\n", 'e','x','i','t');
 
-			printf("a");
-			int val = (args[0][0]==101)+(args[0][1]==120);
-			printf("b");
-			int mal = (args[0][3]==116)+(args[0][2]==105);
-			printf("c");
+			printf("\n%i\n", strcmp("exit", args[0]));
+			printf("\n%i\n", strcmp("exit", args[0]));
+			printf("\n%i\n", strcmp("exit", args[0]));
+			printf("\n%i\n", strcmp("exit", args[0]));
+			printf("\n%i\n", strcmp("exit", args[0]));
+			printf("\n%i\n", strcmp("exit", args[0]));
+			printf("\n%i\n", strcmp("exit", args[0]));
 
-			if (val*mal == 4)
+			if (strcmp("exit", args[0]) == 0)
 			{
 				printf("this should be printed, no?");
-				continuation = 0;
+				//continuation = 0;
 			}
 			else if (strcmp("cd", args[0]) == 0)
 			{

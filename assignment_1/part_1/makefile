@@ -2,7 +2,7 @@
 # Ted Meyer
 # 21/01/2014
 
-main: proc_info_mgr.o doit.o console.o
+all: proc_info_mgr.o doit.o console.o
 	gcc proc_info_mgr.o doit.o console.o -o console
 	rm -f *.o
 
