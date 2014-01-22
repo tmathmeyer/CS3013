@@ -38,10 +38,26 @@ char** split_args(char* buffer)
 	return result;
 }
 
+int change_dir(char* dirname)
+{
+	char dir[1024];
+	if (dirname)
+	{
+		chdir(dirname);
+	}
+	else
+	{
+		chdir("~");
+	}
+
+	if (getcwd(dir, sizeof(dir)) != NULL)
+	{
+		printf("%s\n", dir);
+	}
+}
 
 int main()
 {
-	int continuation = 1;
 	printf("~~$ ");
 	char* buffer = (char*)malloc(128);
 	int bufferspace = 0;
@@ -49,7 +65,7 @@ int main()
 	proc_info *p = get_init();
 
 
-	while(c != EOF && continuation)
+	while(c != EOF )
 	{
 		c = getchar();
 		if (c == '\n')
@@ -58,32 +74,18 @@ int main()
 
 			if (strcmp("exit", args[0]) == 0)
 			{
-				printf("this should be printed, no?");
 				return 0;
 			}
 			else if (strcmp("cd", args[0]) == 0)
 			{
-				char dir[1024];
-				if (args[1])
-				{
-					chdir(args[1]);
-				}
-				else
-				{
-					chdir("/home/ted");
-				}
-
-				if (getcwd(dir, sizeof(dir)) != NULL)
-				{
-					printf("%s\n", dir);
-				}
+				change_dir(args[1]);
 			}
 			else
 			{
 				proc_info **p2 = execute(args, p);
 				p = p2[0];
-
 				print_info(p2[1]);
+				free(p2);
 			}
 
 			memset(buffer, 0, 128);
