@@ -6,7 +6,7 @@
 
 typedef struct proc_info {
    int err_code;		  //my own thing
-   long long real_time;         //usertime???
+   long long real_time;   //usertime???
    int cpu_time;          //systemtime???
    int count_preempted;   //incoluntary context switches
    int count_cpu_yeild;   //voluntary context switches
@@ -16,12 +16,16 @@ typedef struct proc_info {
 
 // result[0] = the totals for the shell
 // result[1] = the totals for the studied process
-proc_info** get_proc_info(struct rusage *usage, proc_info *shell);
-proc_info*  get_init();
+proc_info* get_proc_info(struct rusage *usage, proc_info *shell);
 
-//void process(struct rusage *p, char *when);
+// get process info corresponding to NOW
+proc_info* get_init();
+
+// add the time to a proc_info
+proc_info* inject_time(proc_info* inf);
+
+// print info from the proc_info
 void print_info(proc_info* p);
-void inject_time(proc_info* inf);
 
 
 #endif

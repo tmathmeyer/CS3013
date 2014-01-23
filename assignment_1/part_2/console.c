@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "proc_info_mgr.h"
-#include "doit.h"
+#include "proc_list.h"
 
 char** split_args(char* buffer)
 {
@@ -58,45 +58,29 @@ int change_dir(char* dirname)
 
 int main(int argc, char*argv[])
 {
-	printf("~~$ ");
+	current_process = 0;
+	printf("~~$ \n");
 	char* buffer = (char*)malloc(128);
 	int bufferspace = 0;
-	int exeunt = 0;
-	char c = 0;
-	proc_info *p = get_init();
+	char** args = (char**)(malloc(sizeof(char*)));
+	*args = "ls";
 
+	proc_list* running = exec(args, 0);
+	running = exec(args, running);
+	running = exec(args, running);
+	running = exec(args, running);
+	running = exec(args, running);
+	running = exec(args, running);
+	running = exec(args, running);
+	running = exec(args, running);
 
-	while(exeunt == 0)
+	print_all(running);
+
+	while(running)
 	{
-		c = getchar();
-		if (c == '\n')
-		{
-			char** args = split_args(buffer);
-
-			if (strcmp("exit", args[0]) == 0)
-			{
-				exeunt = 1;
-			}
-			else if (strcmp("cd", args[0]) == 0)
-			{
-				change_dir(args[1]);
-			}
-			else
-			{
-				proc_info **p2 = execute(args, p);
-				p = p2[0];
-				print_info(p2[1]);
-				free(p2);
-			}
-
-			memset(buffer, 0, 128);
-			bufferspace = 0;
-		}
-		else
-		{
-			buffer[bufferspace++] = c;
-		}
+		running = prune(running);
 	}
+	
 
 	return 0;
 }
