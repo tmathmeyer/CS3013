@@ -117,39 +117,3 @@ void* read_loop(void* p)
 
     pthread_exit(NULL);
 }
-
-
-
-
-
-
-
-//test
-int main()
-{
-    pthread_t thread;
-    int r;
-    int pipes[2];
-
-    init(pipes, &thread);
-    
-    char c = 0;
-    int i = 0;
-    while (c != EOF)
-    {
-        c = getchar_as();
-        if (c != -2)
-        {
-            printf("%c %i",c, i);
-        }
-        else {
-            i++;
-        }
-    }
-    
-    printf("Closing pipe and joining thread.\n");
-    close(pipes[1]);
-    pthread_join(thread, NULL);
-
-    return 0;
-}
