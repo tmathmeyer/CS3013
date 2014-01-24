@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include "proc_info_mgr.h"
 #include "doit.h"
-#include "proc_list.h" // for background tasks
 
 char** split_args(char* buffer)
 {
@@ -28,10 +27,7 @@ char** split_args(char* buffer)
 	toks = strtok (buffer," ");
 	while (toks != NULL)
 	{
-		char* arg = (char*)(malloc(sizeof(char) * (strlen(toks) + 1)));
-		strcpy(arg, toks);
-		strcat(arg, "\0");
-		*(writer++) = arg;
+		*(writer++) = toks;
 		toks = strtok (NULL, " ");
 	}
 	free(toks);
@@ -57,38 +53,19 @@ int change_dir(char* dirname)
 	}
 }
 
-int exeunt = 0;
-
-void* listen_all(void* arg)
-{
-	proc_list** running = (proc_list**)(arg);
-	while(!*running && exeunt == 0)
-	{
-		while(*running)
-		{
-			*running = prune(*running);
-		}
-	}
-	
-}
-
 int main(int argc, char*argv[])
 {
 	printf("~~$ ");
 	char* buffer = (char*)malloc(128);
 	int bufferspace = 0;
-	proc_list* ptr = 0;
-	proc_list** running = &ptr;
-	*running = 0;
-	int background = 0;
-
-	pthread_t thread;
-	pthread_create(&thread, NULL, listen_all, running);
+	int exeunt = 0;
+	char c = 0;
+	proc_info *p = get_init();
 
 
 	while(exeunt == 0)
 	{
-		char c = getchar();
+		c = getchar();
 		if (c == '\n')
 		{
 			if (bufferspace != 0)
@@ -105,17 +82,10 @@ int main(int argc, char*argv[])
 		    	}
 		    	else
 		    	{
-		    		
-		    		if (background)
-		    		{
-		    			*running = exec(args, running[0]);
-		    			printf("\n~~$ ");
-		    		}
-		    		else
-		    		{
-		    			proc_info* start = get_init();
-		    			print_info(exec_forg(args, start));
-		    		}
+		    		proc_info **p2 = execute(args, p);
+		    		p = p2[0];
+		    		print_info(p2[1]);
+		    		free(p2);
 		    	}
 
 		    	memset(buffer, 0, 128);
@@ -123,7 +93,7 @@ int main(int argc, char*argv[])
             }
             else
             {
-                printf("~~$ ");
+                printf("~~$");
             }
         }
         else if (c == EOF)
@@ -131,18 +101,11 @@ int main(int argc, char*argv[])
             exeunt = 1;
             printf("\n");
         }
-		else if (c != '\b')
+		else
 		{
-			background = (c=='&');
-			if (!background)
-			{
-				buffer[(bufferspace++)%128] = c;
-			}
+			buffer[bufferspace++] = c;
 		}
 	}
-
-	printf("waiting for termination from all sub-processess");
-	while(*running);
 
 	return 0;
 }

@@ -7,6 +7,18 @@
 #include <sys/time.h>
 #include "proc_info_mgr.h"
 
+
+//typedef struct proc_info {
+//   long real_time;         //usertime???
+//   long cpu_time;          //systemtime???
+//   int count_preempted;   //incoluntary context switches
+//   int count_cpu_yeild;   //voluntary context switches
+//   int count_page_fault;  //page faults
+//   int count_pf_kcache;   //page reclaims???
+//} proc_info;
+
+
+
 void print_info(proc_info* p)
 {
 	printf("\n");
@@ -19,7 +31,6 @@ void print_info(proc_info* p)
 	printf("║page faults:      %i\t║\n", p->count_page_fault);
 	printf("║page reclaims:    %i\t║\n", p->count_pf_kcache);
 	printf("╚═══════════════════════╝\n");
-	printf("\n~~$ ");
 	
 }
 
@@ -29,7 +40,7 @@ proc_info** get_proc_info(struct rusage *usage, proc_info *shell)
 	proc_info* exec = (proc_info*) (malloc(sizeof(struct proc_info)));
 	struct timeval t;
 	gettimeofday(&t, 0);
-	long long tod = t.tv_sec*1000000 + t.tv_usec;
+	long elapsed = t.tv_sec*1000000 + t.tv_usec;
 
 	//write the stastics
 	exec -> count_preempted = 0
@@ -45,7 +56,7 @@ proc_info** get_proc_info(struct rusage *usage, proc_info *shell)
 			- shell -> count_pf_kcache +
 			usage -> ru_minflt;
 	exec -> real_time = 
-			tod - 
+			elapsed - 
 			shell -> real_time;
 
 	//overwrite the status numbers
@@ -57,7 +68,7 @@ proc_info** get_proc_info(struct rusage *usage, proc_info *shell)
 			 usage -> ru_majflt;
 	shell -> count_pf_kcache = 
 			 usage -> ru_minflt;
-	shell -> real_time = tod;
+	shell -> real_time = elapsed;
 
 	proc_info** result = (proc_info**)(malloc(2* sizeof(proc_info*)));
 	*result = shell;
@@ -68,13 +79,10 @@ proc_info** get_proc_info(struct rusage *usage, proc_info *shell)
 
 proc_info* get_init()
 {
-	return (proc_info*) (malloc(sizeof(struct proc_info)));
-}
-
-void inject_time(proc_info* inf)
-{
+	proc_info* init = (proc_info*) (malloc(sizeof(struct proc_info)));
 	struct timeval t;
 	gettimeofday(&t, 0);
-	inf->real_time = (long long)(t.tv_sec*1000000 + t.tv_usec);
+	init->real_time = t.tv_sec*1000000 + t.tv_usec;
+	return init;
 }
 

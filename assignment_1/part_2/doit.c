@@ -8,7 +8,7 @@
 #include "proc_info_mgr.h"
 #include "doit.h"
 
-proc_info* exec_forg(char** exec, proc_info* status)
+proc_info** execute(char** exec, proc_info* status)
 {
 	struct rusage *r = (struct rusage*)(malloc(sizeof(struct rusage)));
 

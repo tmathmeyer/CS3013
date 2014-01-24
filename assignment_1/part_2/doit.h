@@ -1,12 +1,14 @@
 // Ted Meyer
 
-#include "proc_info_mgr.h"
-
 #ifndef DOIT_H
 #define DOIT_H
 
+
+//include proc_info
+#include "proc_info_mgr.h"
+
 //prototypes
-proc_info* exec_forg(char** exec, proc_info* status);
+proc_info** execute(char** exec, proc_info* status);
 
 
 

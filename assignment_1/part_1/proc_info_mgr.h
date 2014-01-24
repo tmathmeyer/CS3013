@@ -1,12 +1,9 @@
 //Ted Meyer
-#ifndef PROC_INFO_MGR_H
-#define PROC_INFO_MGR_H
-
 #include <sys/resource.h>
 
 typedef struct proc_info {
    int err_code;		  //my own thing
-   long long real_time;         //usertime???
+   int real_time;         //usertime???
    int cpu_time;          //systemtime???
    int count_preempted;   //incoluntary context switches
    int count_cpu_yeild;   //voluntary context switches
@@ -21,7 +18,3 @@ proc_info*  get_init();
 
 //void process(struct rusage *p, char *when);
 void print_info(proc_info* p);
-void inject_time(proc_info* inf);
-
-
-#endif
