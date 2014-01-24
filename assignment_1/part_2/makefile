@@ -6,6 +6,9 @@ main: proc_info_mgr.o doit.o console.o
 	gcc proc_info_mgr.o doit.o console.o -o console
 	rm -f *.o
 
+test: async_io.c
+	gcc -lpthread async_io.c
+
 console.o: console.c
 	gcc -c console.c
 

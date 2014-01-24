@@ -27,10 +27,7 @@ char** split_args(char* buffer)
 	toks = strtok (buffer," ");
 	while (toks != NULL)
 	{
-		char* arg = (char*)(malloc(sizeof(char) * (strlen(toks) + 1)));
-		strcpy(arg, toks);
-		strcat(arg, "\0");
-		*(writer++) = arg;
+		*(writer++) = toks;
 		toks = strtok (NULL, " ");
 	}
 	free(toks);
@@ -71,27 +68,39 @@ int main(int argc, char*argv[])
 		c = getchar();
 		if (c == '\n')
 		{
-			char** args = split_args(buffer);
+			if (bufferspace != 0)
+            {
+                char** args = split_args(buffer);
 
-			if (strcmp("exit", args[0]) == 0)
-			{
-				exeunt = 1;
-			}
-			else if (strcmp("cd", args[0]) == 0)
-			{
-				change_dir(args[1]);
-			}
-			else
-			{
-				proc_info **p2 = execute(args, p);
-				p = p2[0];
-				print_info(p2[1]);
-				free(p2);
-			}
+			    if (strcmp("exit", args[0]) == 0)
+			    {
+			    	exeunt = 1;
+			    }
+			    else if (strcmp("cd", args[0]) == 0)
+			    {
+			    	change_dir(args[1]);
+		    	}
+		    	else
+		    	{
+		    		proc_info **p2 = execute(args, p);
+		    		p = p2[0];
+		    		print_info(p2[1]);
+		    		free(p2);
+		    	}
 
-			memset(buffer, 0, 128);
-			bufferspace = 0;
-		}
+		    	memset(buffer, 0, 128);
+			    bufferspace = 0;
+            }
+            else
+            {
+                printf("~~$");
+            }
+        }
+        else if (c == EOF)
+        {
+            exeunt = 1;
+            printf("\n");
+        }
 		else
 		{
 			buffer[bufferspace++] = c;
