@@ -23,7 +23,7 @@ void print_info(proc_info* p)
 	
 }
 
-proc_info** get_proc_info(struct rusage *usage, proc_info *shell)
+proc_info* get_proc_info(struct rusage *usage, proc_info *shell)
 {
 	//init struct data
 	proc_info* exec = (proc_info*) (malloc(sizeof(struct proc_info)));
@@ -59,22 +59,18 @@ proc_info** get_proc_info(struct rusage *usage, proc_info *shell)
 			 usage -> ru_minflt;
 	shell -> real_time = tod;
 
-	proc_info** result = (proc_info**)(malloc(2* sizeof(proc_info*)));
-	*result = shell;
-	*(result+1) = exec;
-
-	return result;
+	return exec;
 }
 
 proc_info* get_init()
-{
-	return (proc_info*) (malloc(sizeof(struct proc_info)));
+{	
+	return inject_time((proc_info*) (malloc(sizeof(struct proc_info))));;
 }
 
-void inject_time(proc_info* inf)
+proc_info* inject_time(proc_info* inf)
 {
 	struct timeval t;
 	gettimeofday(&t, 0);
 	inf->real_time = (long long)(t.tv_sec*1000000 + t.tv_usec);
+	return inf;
 }
-
