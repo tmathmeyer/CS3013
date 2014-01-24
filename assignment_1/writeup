@@ -1,0 +1,146 @@
+Part 1:  doit
+	I tested this as I wrote it, but one of the examples I used was: (local computer)
+	./doit df -h
+	which gives me the output:
+
+		Filesystem      Size  Used Avail Use% Mounted on
+		/dev/sda4        46G   15G   29G  35% /
+		dev              16G     0   16G   0% /dev
+		run              16G  620K   16G   1% /run
+		tmpfs            16G  2.5M   16G   1% /dev/shm
+		tmpfs            16G     0   16G   0% /sys/fs/cgroup
+		tmpfs            16G   55M   16G   1% /tmp
+		/dev/sda1      1022M   23M 1000M   3% /boot
+		/dev/sdb3       622G   39G  552G   7% /media
+		/dev/sdb2       148G  4.1G  136G   3% /opt
+		/dev/sdb1       148G   77G   64G  55% /home
+
+		╔═══════════════════════╗
+		║clock time (µs):  1987	║
+		║cpu time (µs):    0	║
+		║context switches: 		║
+		║    voluntary:    1	║
+		║    involntary:   2	║
+		║page faults:      0	║
+		║page reclaims:    189	║
+		╚═══════════════════════╝
+
+
+Part 2: basic shell
+	for this one, I used a file 'testcmds' with the content:
+		ls
+		ls -lah
+		cd /
+		ls -lah
+	and when running ./console < testcmds, the output is:
+
+		console  console.c  doit.c  doit.h  makefile  proc_info_mgr.c  proc_info_mgr.h	testcmds
+		~~$ 
+		╔═══════════════════════╗
+		║clock time (µs):  550	║
+		║cpu time (µs):    0	║
+		║context switches: 	║
+		║    voluntary:    1	║
+		║    involntary:   1	║
+		║page faults:      0	║
+		║page reclaims:    247	║
+		╚═══════════════════════╝
+
+		total 60K
+		drwxr-xr-x 3 ted users 4.0K Jan 24 17:24 .
+		drwxr-xr-x 5 ted users 4.0K Jan 24 17:23 ..
+		-rwxr-xr-x 1 ted users  13K Jan 24 17:21 console
+		-rw-r--r-- 1 ted users 1.7K Jan 24 11:50 console.c
+		-rw-r--r-- 1 ted users  506 Jan 22 01:13 doit.c
+		-rw-r--r-- 1 ted users  169 Jan 22 01:13 doit.h
+		-rw-r--r-- 1 ted users   13 Jan 22 01:13 .gitignore
+		-rw-r--r-- 1 ted users  307 Jan 22 15:18 makefile
+		-rw-r--r-- 1 ted users 2.3K Jan 24 17:16 proc_info_mgr.c
+		-rw-r--r-- 1 ted users  750 Jan 22 01:13 proc_info_mgr.h
+		drwxr-xr-x 2 ted users 4.0K Jan 22 15:16 .settings
+		-rw-r--r-- 1 ted users   24 Jan 24 17:24 testcmds
+		~~$ 
+		╔═══════════════════════╗
+		║clock time (µs):  1921	║
+		║cpu time (µs):    0	║
+		║context switches: 	║
+		║    voluntary:    35	║
+		║    involntary:   1	║
+		║page faults:      0	║
+		║page reclaims:    15	║
+		╚═══════════════════════╝
+
+		~~$ /
+		total 68K
+		drwxr-xr-x  19 root root  4.0K Jan 23 18:02 .
+		drwxr-xr-x  19 root root  4.0K Jan 23 18:02 ..
+		lrwxrwxrwx   1 root root     7 May 31  2013 bin -> usr/bin
+		drwxr-xr-x   4 root root  4.0K Dec 31  1969 boot
+		drwxr-xr-x   3 root root  4.0K Dec 30 18:53 data
+		drwxr-xr-x  19 root root  3.3K Jan 23 22:47 dev
+		drwxr-xr-x  82 root root  4.0K Jan 23 19:07 etc
+		drwxr-xr-x   4 ted  users 4.0K Oct 23 20:25 home
+		lrwxrwxrwx   1 root root     7 May 31  2013 lib -> usr/lib
+		lrwxrwxrwx   1 root root     7 May 31  2013 lib64 -> usr/lib
+		drwx------   2 root root   16K Dec 31  2008 lost+found
+		drwxr-xr-x  11 ted  users 4.0K Jan 20 23:29 media
+		drwxr-xr-x   3 root root  4.0K Jan 11 22:14 mnt
+		drwxr-xr-x  15 ted  users 4.0K Jan 13 00:49 opt
+		dr-xr-xr-x 200 root root     0 Jan 23 17:58 proc
+		drwxr-x---  10 root root  4.0K Jan 23 18:24 root
+		drwxr-xr-x  20 root root   620 Jan 23 19:45 run
+		lrwxrwxrwx   1 root root     7 May 31  2013 sbin -> usr/bin
+		drwxr-xr-x   5 root root  4.0K Dec 23 22:55 srv
+		dr-xr-xr-x  13 root root     0 Jan 23 17:58 sys
+		drwxrwxrwt  13 root root   420 Jan 24 17:22 tmp
+		drwxr-xr-x   9 root root  4.0K Dec 20 12:34 usr
+		drwxr-xr-x  12 root root  4.0K Dec 31  2008 var
+
+		╔═══════════════════════╗
+		║clock time (µs):  2060	║
+		║cpu time (µs):    0	║
+		║context switches: 	║
+		║    voluntary:    37	║
+		║    involntary:   1	║
+		║page faults:      0	║
+		║page reclaims:    10	║
+		╚═══════════════════════╝
+
+
+Part 3: Shell with background tasks
+
+	the data structure and algorithm for managing this wasn't really that complicated. 
+	I simply made a linked list where each node contained:
+		-> the pointer to the next node
+		-> information about the state of the parent process at the the time fork was called
+		-> the process id
+		-> my own identification number for telling how many background processess have been called
+	I made it so that when a user hit enter, if the last character before \n that they typed was an &,
+	then the process would fork and store it's information into the linked list instead of being waited
+	for with WNOHANG. I also spawned off a new thread to manage this list, which it does by "pruning", a
+	process where it goes through the list, and keeping only non-finished processess, and printing process
+	info for the finished ones. after the main while loop hits EOF, it simply waits for the list of running
+	processess to be empty before returning from main and ending.
+
+	I tested this with a program called wait_random that I downloaded from the arch user repository,
+	which just waits a random amount of time before printing the time that it waited. I piped 4 instances of
+	this into the new console program, and the child processess finished in the order [2] [3] [1] [4].
+
+
+
+
+
+
+
+
+RUNNING MAKE
+
+~$ make all
+	-> builds everything (doit, shell, shell2)
+
+~$ make {shell, shell2, doit}
+	-> builds either doit, shell, or shell2, depending on input
+
+~$ make clean
+	-> deletes all executables
+

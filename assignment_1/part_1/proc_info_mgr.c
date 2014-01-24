@@ -55,6 +55,10 @@ proc_info** get_proc_info(struct rusage *usage, proc_info *shell)
 	exec -> count_pf_kcache = 0
 			- shell -> count_pf_kcache +
 			usage -> ru_minflt;
+	exec -> cpu_time = 0
+			- shell -> cpu_time +
+			usage -> ru_stime.tv_sec*1000000 +
+			usage -> ru_stime.tv_usec;
 	exec -> real_time = 
 			elapsed - 
 			shell -> real_time;
@@ -68,6 +72,9 @@ proc_info** get_proc_info(struct rusage *usage, proc_info *shell)
 			 usage -> ru_majflt;
 	shell -> count_pf_kcache = 
 			 usage -> ru_minflt;
+	shell -> cpu_time = 
+			 usage -> ru_stime.tv_sec*1000000 +
+			 usage -> ru_stime.tv_usec;
 	shell -> real_time = elapsed;
 
 	proc_info** result = (proc_info**)(malloc(2* sizeof(proc_info*)));
