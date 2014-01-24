@@ -19,6 +19,7 @@
 proc_list* exec(char** args, proc_list* current)
 {
 	proc_list* result = (proc_list*)(malloc(sizeof(proc_list)));
+	proc_info* start_info = get_init();
 	int pid = fork();
 	if (pid == 0)
 	{
@@ -29,7 +30,7 @@ proc_list* exec(char** args, proc_list* current)
 	{
 		printf("[%i] %i\n", ++current_process, pid);
 
-		result -> start_info = get_init();
+		result -> start_info = start_info;
 		result -> next       = current;
 		result -> pid        = pid;
 		result -> my_id      = current_process;
@@ -49,7 +50,7 @@ proc_list* prune(proc_list* current)
 	{
 		if (wait4(current->pid, NULL, WNOHANG, r))
 		{ // this process has finished!!!
-			printf("[%i] %i\n", current->my_id, current->pid);
+			printf("[%i] %i completed\n", current->my_id, current->pid);
 			proc_info* info = get_proc_info(r, current->start_info);
 			print_info(info);
 			free(info);

@@ -9,16 +9,18 @@
 #include <unistd.h>
 
 void* read_loop(void* data);
+int lock;
 
 char getchar_as()
 {
-    if (_head -> w_pos == _head -> r_pos)
+    int sum = _head -> r_pos + _head -> w_pos;
+    if (_head -> w_pos <= _head -> r_pos)
     { // the read and write heads are at the same position
         return -2;
     }
     else
     {
-        if (_head -> r_pos == 128)
+        if (_head -> r_pos >= 128)
         { //we're out of the buffer chunk. go to the next one
             io_buffer* next = _head -> next;
             free(_head -> buffr);
@@ -26,7 +28,7 @@ char getchar_as()
             _head = next;
         }
         
-        if (_head -> r_pos == _head -> w_pos)
+        if (_head -> r_pos >= _head -> w_pos)
         {
             return -2;
         }
@@ -44,6 +46,7 @@ char getchar_as()
 
 int init(int* pipes, pthread_t* thread)
 {
+    lock = 0;
     _head = (io_buffer*)(malloc(sizeof(io_buffer)));
     _head -> buffr = (char*)(malloc(128));
     _head -> r_pos = 0;
@@ -64,9 +67,9 @@ int init(int* pipes, pthread_t* thread)
 
 int _insert(char c)
 {
-    if (_tail -> w_pos == 128)
+    if (_tail -> w_pos >= 128)
     { // gotta create a new place
-        _tail -> w_pos = -1;
+        _tail -> w_pos = 128;
         io_buffer* next = (io_buffer*)(malloc(sizeof(io_buffer)));
         next -> buffr = (char*)(malloc(128));
         next -> r_pos = 0;

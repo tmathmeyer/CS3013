@@ -3,7 +3,7 @@
 # 21/01/2014
 
 all: doit.o proc_info_mgr.o proc_list.o console.o async_io.o
-	gcc doit.o proc_info_mgr.o proc_list.o console.o async_io.o -o console -lpthread
+	gcc proc_info_mgr.o doit.o proc_list.o console.o async_io.o -o console -lpthread
 	rm -f *.o
 
 async_io.o: async_io.c async_io.h
