@@ -1,4 +1,4 @@
 ls
 ls -lah
-cd
+cd /
 ls -lah

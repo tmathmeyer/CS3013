@@ -75,7 +75,7 @@ void* listen_all(void* arg)
 int main(int argc, char*argv[])
 {
 	printf("~~$ ");
-	char* buffer = (char*)malloc(128);
+	char* buffer = (char*)malloc(1024);
 	int bufferspace = 0;
 	proc_list* ptr = 0;
 	proc_list** running = &ptr;
@@ -136,7 +136,7 @@ int main(int argc, char*argv[])
 			background = (c=='&');
 			if (!background)
 			{
-				buffer[(bufferspace++)%128] = c;
+				buffer[(bufferspace++)%1024] = c;
 			}
 		}
 	}
