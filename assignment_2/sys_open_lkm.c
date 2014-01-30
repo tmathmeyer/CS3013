@@ -1,9 +1,10 @@
 /*
- * Sample_LKM.c
+ * sys_open_lkm.c
  *
  *  Undated on: Jan 26, 2014
  *      Author: Craig Shue
  *      Updated: Hugh C. Lauer
+ *		Updated: Ted Meyer (tmathmeyer@gmail.com)
  */
 
 // We need to define __KERNEL__ and MODULE to be in Kernel space
@@ -17,36 +18,75 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/syscalls.h>
+#include <linux/cred.h>
 
+//pointer to the system call table
 unsigned long **sys_call_table;
 
-asmlinkage long (*ref_sys_cs3013_syscall1)(void);
+// the old syscalls
+asmlinkage long  (*old_sys_open) (void);
+asmlinkage long  (*old_sys_close) (void);
+asmlinkage int   (*getuid_call)();
 
-asmlinkage long new_sys_cs3013_syscall1(void) {
+
+
+
+asmlinkage long new_sys_cs3013_syscall1(void)
+{
 	printk(KERN_INFO "\"'Hello world?!' More like 'Goodbye, world!' EXTERMINATE!\" -- Dalek");
 	return 0;
 }	// asmlinkage long new_sys_cs3013_syscall1(void)
 
-static unsigned long **find_sys_call_table(void) {
-	unsigned long int offset = PAGE_OFFSET;
-	unsigned long **sct;
 
-	while (offset < ULLONG_MAX) {
+
+asmlinkage long new_fopen(void)
+{
+
+
+
+	return 0;
+}
+
+
+asmlinkage long new_fclose(void)
+{
+
+
+
+	return 0;
+}
+
+
+
+
+static unsigned long **find_sys_call_table(void)
+{
+	unsigned long int offset = PAGE_OFFSET;
+	unsigned long **sct      = 0;
+
+	while (offset < ULLONG_MAX)
+	{
 		sct = (unsigned long **)offset;
 
-		if (sct[__NR_close] == (unsigned long *) sys_close) {
+		if (sct[__NR_close] == (unsigned long *) sys_close)
+		{
 			printk(KERN_INFO "Interceptor: Found syscall table at address: 0x%02lX", (unsigned long) sct);
 			return sct;
 		}
 
-	offset += sizeof(void *);
+		offset += sizeof(void *);
 	}
 
 	return NULL;
 }	// static unsigned long **find_sys_call_table(void)
 
 
-static void disable_page_protection(void) {
+
+
+
+
+static void disable_page_protection(void)
+{
 	/*
 	Control Register 0 (cr0) governs how the CPU operates.
 
@@ -67,7 +107,12 @@ static void disable_page_protection(void) {
 }	//static void disable_page_protection(void)
 
 
-static void enable_page_protection(void) {
+
+
+
+
+static void enable_page_protection(void)
+{
 	/*
 	See the above description for cr0. Here, we use an OR to set the
 	16th bit to re-enable write protection on the CPU.
@@ -78,9 +123,15 @@ static void enable_page_protection(void) {
 }	// static void enable_page_protection(void)
 
 
-static int __init interceptor_start(void) {
+
+
+
+
+static int __init interceptor_start(void)
+{
 	/* Find the system call table */
-	if(!(sys_call_table = find_sys_call_table())) {
+	if(!(sys_call_table = find_sys_call_table()))
+	{
 		/* Well, that didn't work.
 		Cancel the module loading step. */
 		return -1;
@@ -88,14 +139,22 @@ static int __init interceptor_start(void) {
 
 
 	/* Store a copy of all the existing functions */
-	ref_sys_cs3013_syscall1 = (void *)sys_call_table[__NR_cs3013_syscall1];
+	old_sys_open  = (void *)sys_call_table[__NR_open];
+	old_sys_close = (void *)sys_call_table[__NR_close];
+	getuid_call =           sys_call_table[__NR_getuid];
 
 	/* Replace the existing system calls */
 	disable_page_protection();
 
-	sys_call_table[__NR_cs3013_syscall1] = (unsigned long *)new_sys_cs3013_syscall1;
+	//sys_call_table[__NR_open]  = (unsigned long *)new_fopen;
+	//sys_call_table[__NR_close] = (unsigned long *)new_fclose;
 
 	enable_page_protection();
+
+
+	uid_t uid = getuid_call();
+	printk(KERN_INFO "you are user_id #%i", uuid);
+
 
 	/* And indicate the load was successful */
 	printk(KERN_INFO "Loaded interceptor!");
@@ -104,7 +163,12 @@ static int __init interceptor_start(void) {
 }	// static int __init interceptor_start(void)
 
 
-static void __exit interceptor_end(void) {
+
+
+
+
+static void __exit interceptor_end(void)
+{
 	/* If we don't know what the syscall table is, don't bother. */
 	if(!sys_call_table)
 		return;
@@ -116,6 +180,11 @@ static void __exit interceptor_end(void) {
 
 	printk(KERN_INFO "Unloaded interceptor!");
 }	// static void __exit interceptor_end(void)
+
+
+
+
+
 
 MODULE_LICENSE("GPL");
 module_init(interceptor_start);
