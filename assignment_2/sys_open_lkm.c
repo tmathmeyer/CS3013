@@ -42,7 +42,7 @@ asmlinkage long new_sys_cs3013_syscall1(void)
 asmlinkage long new_fopen(const char* file, int flags, int mode)
 {
 	int uid = getuid_call();
-	if (uid > 1000)
+	if (uid > 0)
 	{
 		printk(KERN_INFO "file: \"%s\" opened by user with id: %i\n", file, uid);
 	}
@@ -54,7 +54,7 @@ asmlinkage long new_fopen(const char* file, int flags, int mode)
 asmlinkage long new_fclose(const char* file, int flags, int mode)
 {
 	int uid = getuid_call();
-	if (uid > 1000)
+	if (uid > 0)
 	{
 		printk(KERN_INFO "file: \"%s\" closed by user with id: %i\n", file, uid);
 	}
