@@ -24,8 +24,8 @@
 unsigned long **sys_call_table;
 
 // the old syscalls
-asmlinkage long  (*old_sys_open)  (void);
-asmlinkage long  (*old_sys_close) (void);
+asmlinkage long  (*old_sys_open)  (const char* file, int flags, int mode);
+asmlinkage long  (*old_sys_close) (const char* file, int flags, int mode);
 asmlinkage int   (*getuid_call)   (void);
 
 
@@ -39,21 +39,20 @@ asmlinkage long new_sys_cs3013_syscall1(void)
 
 
 
-asmlinkage long new_fopen(void)
+asmlinkage long new_fopen(const char* file, int flags, int mode)
 {
 	printk(KERN_INFO "file opened!");
 
-	old_sys_open();
-	return 0;
+	return old_sys_open(file, flags, mode);
 }
 
 
-asmlinkage long new_fclose(void)
+asmlinkage long new_fclose(const char* file, int flags, int mode)
 {
 	printk(KERN_INFO "file closed!");
 
-	old_sys_close();
-	return 0;
+	return old_sys_close(file, flags, mode);
+	
 }
 
 
