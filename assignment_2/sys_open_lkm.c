@@ -145,8 +145,8 @@ static int __init interceptor_start(void)
 	/* Replace the existing system calls */
 	disable_page_protection();
 
-	//sys_call_table[__NR_open]  = (unsigned long *)new_fopen;
-	//sys_call_table[__NR_close] = (unsigned long *)new_fclose;
+	sys_call_table[__NR_open]  = (unsigned long *)new_fopen;
+	sys_call_table[__NR_close] = (unsigned long *)new_fclose;
 
 	enable_page_protection();
 
