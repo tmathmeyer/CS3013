@@ -41,18 +41,18 @@ asmlinkage long new_sys_cs3013_syscall1(void)
 
 asmlinkage long new_fopen(void)
 {
+	printk(KERN_INFO "file opened!");
 
-
-
+	old_sys_open();
 	return 0;
 }
 
 
 asmlinkage long new_fclose(void)
 {
+	printk(KERN_INFO "file closed!");
 
-
-
+	old_sys_close();
 	return 0;
 }
 
@@ -146,8 +146,8 @@ static int __init interceptor_start(void)
 	/* Replace the existing system calls */
 	disable_page_protection();
 
-	//sys_call_table[__NR_open]  = (unsigned long *)new_fopen;
-	//sys_call_table[__NR_close] = (unsigned long *)new_fclose;
+	sys_call_table[__NR_open]  = (unsigned long *)new_fopen;
+	sys_call_table[__NR_close] = (unsigned long *)new_fclose;
 
 	enable_page_protection();
 
@@ -175,7 +175,8 @@ static void __exit interceptor_end(void)
 
 	/* Revert all system calls to what they were before we began. */
 	disable_page_protection();
-	//sys_call_table[__NR_cs3013_syscall1] = (unsigned long *)ref_sys_cs3013_syscall1;
+	sys_call_table[__NR_open]  = (unsigned long *) old_sys_open;
+	sys_call_table[__NR_close] = (unsigned long *) old_sys_close;
 	enable_page_protection();
 
 	printk(KERN_INFO "Unloaded interceptor!");
