@@ -175,7 +175,7 @@ static void __exit interceptor_end(void)
 
 	/* Revert all system calls to what they were before we began. */
 	disable_page_protection();
-	sys_call_table[__NR_cs3013_syscall1] = (unsigned long *)ref_sys_cs3013_syscall1;
+	//sys_call_table[__NR_cs3013_syscall1] = (unsigned long *)ref_sys_cs3013_syscall1;
 	enable_page_protection();
 
 	printk(KERN_INFO "Unloaded interceptor!");
