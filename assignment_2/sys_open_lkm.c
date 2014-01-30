@@ -152,7 +152,7 @@ static int __init interceptor_start(void)
 	enable_page_protection();
 
 
-	uid_t uid = getuid_call();
+	int uid = getuid_call();
 	printk(KERN_INFO "you are user_id #%i", uid);
 
 
