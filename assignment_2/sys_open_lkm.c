@@ -24,9 +24,9 @@
 unsigned long **sys_call_table;
 
 // the old syscalls
-asmlinkage long  (*old_sys_open) (void);
+asmlinkage long  (*old_sys_open)  (void);
 asmlinkage long  (*old_sys_close) (void);
-asmlinkage int   (*getuid_call)();
+asmlinkage int   (*getuid_call)   (void);
 
 
 
@@ -141,7 +141,7 @@ static int __init interceptor_start(void)
 	/* Store a copy of all the existing functions */
 	old_sys_open  = (void *)sys_call_table[__NR_open];
 	old_sys_close = (void *)sys_call_table[__NR_close];
-	getuid_call =           sys_call_table[__NR_getuid];
+	getuid_call =   (void *)sys_call_table[__NR_getuid];
 
 	/* Replace the existing system calls */
 	disable_page_protection();
@@ -153,7 +153,7 @@ static int __init interceptor_start(void)
 
 
 	uid_t uid = getuid_call();
-	printk(KERN_INFO "you are user_id #%i", uuid);
+	printk(KERN_INFO "you are user_id #%i", uid);
 
 
 	/* And indicate the load was successful */
