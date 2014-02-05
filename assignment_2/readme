@@ -1,0 +1,6 @@
+Since there really isn't very much to talk about as far as code goes (it's just a slightly modified version of simple_lkm.c)
+I'm just going to mention how I tested this. When I had loaded the module (and the computer didn't crash... there were some
+bugs the first two or three times), I simply left `tail -f /var/log/dmesg/` running in one terminal, then just opened a few
+files in vim and watched the kernel messages appear in the first terminal. As I told professor Lauer in an email, I've been
+in the ER three times now for a very painful kidney stone, and am currently at homme in Connecticut. Since I do all my tests
+on my desktop at school, I wont be submitting those until a later date, when I can finally go back to Worcester.
