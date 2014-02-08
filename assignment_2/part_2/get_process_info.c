@@ -25,10 +25,10 @@
 int main(int argc, char** argv)
 {
 	prinfo* cpi;
-	rc = syscall(__NR_cs3013_syscall1, cpi);
+	printf("syscall result: %i\n", syscall(__NR_cs3013_syscall1, cpi));
 
 	printf("╔═══════════════════════╗\n");
-	printf("║proc_state: %i\n", cpi -> state);
+	printf("║proc_state: %ld\n", cpi -> state);
 	printf("║proc_id: %i\n", cpi -> pid);
 	printf("║%i\n", cpi -> parent_pid);
 	printf("║%i\n", cpi -> youngest_child);
