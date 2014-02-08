@@ -1,6 +1,7 @@
 #include "prinfo.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #define __NR_cs3013_syscall1 349
 
