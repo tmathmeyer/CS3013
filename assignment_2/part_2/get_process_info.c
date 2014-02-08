@@ -26,9 +26,10 @@
 int main(int argc, char** argv)
 {
 	prinfo* cpi = (prinfo*)(malloc(sizeof(prinfo)));
+	sleep(1);
 	printf("syscall result: %ld\n", syscall(__NR_cs3013_syscall1, cpi));\
 
-	sleep(5);
+	sleep(2);
 
 	printf("╔═══════════════════════════════╗\n");
 	printf("║proc_state: %ld\t\t\t║\n", cpi -> state);
