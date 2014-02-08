@@ -23,7 +23,6 @@ asmlinkage long (*referenced_call)(void);
 
 asmlinkage long new_proc_info(prinfo* info)
 {
-	printk(KERN_INFO "syscall intercepted");
 	struct task_struct *cur_proc_info = current;
 	prinfo pinfo;
 	
@@ -124,6 +123,7 @@ asmlinkage long new_proc_info(prinfo* info)
 
 	if(copy_to_user(info, &pinfo, sizeof(prinfo)))
 	{ // attempt to copy the struct to userspace
+		printk(KERN_INFO "EFAULT! id: %i", EFAULT);
 		return EFAULT;
 	}
 
