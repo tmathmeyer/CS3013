@@ -21,10 +21,11 @@ int           REPLACED_CALL_ID = __NR_cs3013_syscall1;
 asmlinkage long (*referenced_call)(void);
 
 
-asmlinkage long new_proc_info(struct prinfo* info)
+asmlinkage long new_proc_info(prinfo* info)
 {
+	printk(KERN_INFO "syscall intercepted");
 	struct task_struct *cur_proc_info = current;
-	struct prinfo pinfo;
+	prinfo pinfo;
 	
 	struct task_struct *t = -0;
 	struct list_head   *p = -0; 
