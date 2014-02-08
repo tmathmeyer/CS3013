@@ -35,11 +35,11 @@ int main(int argc, char** argv)
 	printf("║%i\n", cpi -> younger_sibling);
 	printf("║%i\n", cpi -> older_sibling);
 	printf("║%i\n", cpi -> uid);
-	printf("║%i\n", cpi -> start_time);
-	printf("║%i\n", cpi -> user_time);
-	printf("║%i\n", cpi -> sys_time);
-	printf("║%i\n", cpi -> cutime);
-	printf("║%i\n", cpi -> cstime);
+	printf("║%lld\n", cpi -> start_time);
+	printf("║%lld\n", cpi -> user_time);
+	printf("║%lld\n", cpi -> sys_time);
+	printf("║%lld\n", cpi -> cutime);
+	printf("║%lld\n", cpi -> cstime);
 	printf("╚═══════════════════════╝\n");
 
 
