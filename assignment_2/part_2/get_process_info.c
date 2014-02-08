@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#define __NR_cs3013_syscall1 349
+
 //good goy why is this not typedef'd to begin with?? we're not in the 70's anymore
 //typedef struct prinfo {
 //    long state;            // current state of process
