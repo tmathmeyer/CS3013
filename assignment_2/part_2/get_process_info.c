@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 	printf("║sys_time:   %lld\t\t\t║\n", cpi -> sys_time);
 	printf("║cu_time:    %lld\t\t\t║\n", cpi -> cutime);
 	printf("║cs_time:    %lld\t\t\t║\n", cpi -> cstime);
-	printf("╚═══════════════════════╝\n");
+	printf("╚═══════════════════════════════╝\n");
 
 
 }
