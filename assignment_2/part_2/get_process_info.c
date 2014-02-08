@@ -31,18 +31,18 @@ int main(int argc, char** argv)
 	sleep(5);
 
 	printf("╔═══════════════════════╗\n");
-	printf("║proc_state: %ld\n\t\t║", cpi -> state);
-	printf("║proc_id:    %i\n\t\t║", cpi -> pid);
-	printf("║parent_id:  %i\n\t\t║", cpi -> parent_pid);
-	printf("║y_child_id: %i\n\t\t║", cpi -> youngest_child);
-	printf("║y_sibl_in:  %i\n\t\t║", cpi -> younger_sibling);
-	printf("║o_sibl_in:  %i\n\t\t║", cpi -> older_sibling);
-	printf("║user_id:    %i\n\t\t║", cpi -> uid);
-	printf("║start_time: %lld\n\t\t║", cpi -> start_time);
-	printf("║user_time:  %lld\n\t\t║", cpi -> user_time);
-	printf("║sys_time:   %lld\n\t\t║", cpi -> sys_time);
-	printf("║cu_time:    %lld\n\t\t║", cpi -> cutime);
-	printf("║cs_time:    %lld\n\t\t║", cpi -> cstime);
+	printf("║proc_state: %ld\t\t║\n", cpi -> state);
+	printf("║proc_id:    %i\t\t║\n", cpi -> pid);
+	printf("║parent_id:  %i\t\t║\n", cpi -> parent_pid);
+	printf("║y_child_id: %i\t\t║\n", cpi -> youngest_child);
+	printf("║y_sibl_in:  %i\t\t║\n", cpi -> younger_sibling);
+	printf("║o_sibl_in:  %i\t\t║\n", cpi -> older_sibling);
+	printf("║user_id:    %i\t\t║\n", cpi -> uid);
+	printf("║start_time: %lld\t\t║\n", cpi -> start_time);
+	printf("║user_time:  %lld\t\t║\n", cpi -> user_time);
+	printf("║sys_time:   %lld\t\t║\n", cpi -> sys_time);
+	printf("║cu_time:    %lld\t\t║\n", cpi -> cutime);
+	printf("║cs_time:    %lld\t\t║\n", cpi -> cstime);
 	printf("╚═══════════════════════╝\n");
 
 
