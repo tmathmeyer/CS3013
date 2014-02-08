@@ -16,7 +16,7 @@
 
 // pointer to the system call table
 unsigned long **sys_call_table = 0;
-int           REPLACED_CALL_ID = __NR_something_or_other;
+int           REPLACED_CALL_ID = __NR_cs3013_syscall1;
 
 asmlinkage long (*referenced_call)(void);
 
@@ -54,7 +54,7 @@ asmlinkage long new_proc_info(struct prinfo* info)
 		time_nano      = timespec_to_ns(&(t  -> start_time));
 		if (tmp_st > time_nano)
 		{ // every iteration check if this is youngest we've seen so far
-			tmp_st = time_nano
+			tmp_st = time_nano;
 			pinfo.youngest_child = t -> pid;
 		}
 	}
@@ -68,7 +68,7 @@ asmlinkage long new_proc_info(struct prinfo* info)
 		time_nano      = timespec_to_ns(&(t  -> start_time));
 		if (tmp_st > time_nano)
 		{ // every iteration check if this is youngest we've seen so far
-			tmp_st = time_nano
+			tmp_st = time_nano;
 			pinfo.youngest_child = t -> pid;
 		}
 	}
@@ -103,12 +103,12 @@ asmlinkage long new_proc_info(struct prinfo* info)
 
 		if ( (time_nano < pinfo.start_time)  &&  (time_nano > tmp_st) )
 		{
-			tmp_st  = time_nano
+			tmp_st  = time_nano;
 			tmp_pid = t -> pid;
 		}
 		else if ( (time_nano > pinfo.start_time)  &&  (time_nano < xmp_st) )
 		{
-			xmp_st  = time_nano
+			xmp_st  = time_nano;
 			xmp_pid = t -> pid;
 		}
 	}
@@ -190,7 +190,7 @@ static void __exit interceptor_end(void)
 {
 	if(!sys_call_table)
 	{
-		return -1;
+		return ;
 	}
 
 	disable_page_protection();
@@ -199,7 +199,7 @@ static void __exit interceptor_end(void)
 
 	printk(KERN_INFO "unloaded detailed process mddule");
 
-	return 0;
+	return ;
 }
 
 
