@@ -24,7 +24,7 @@ asmlinkage long (*referenced_call)(void);
 asmlinkage long new_proc_info(struct prinfo* info)
 {
 	struct task_struct *cur_proc_info = current;
-	struct prinfo* pinfo              = (prinfo*) malloc(sizeof(prinfo));
+	struct prinfo pinfo;
 	
 	struct task_struct *t = -0;
 	struct list_head   *p = -0; 
@@ -36,12 +36,12 @@ asmlinkage long new_proc_info(struct prinfo* info)
 	unsigned long long tmp_st    = -1;
 	
 
-	pinfo -> pid        = cur_proc_info -> pid;
-	pinfo -> state      = cur_proc_info -> state;
-	pinfo -> cutime     = 0;
-	pinfo -> cstime     = 0;
-	pinfo -> parent_pid = cur_proc_info -> parent -> pid;
-	pinfo -> start_time = timespec_to_ns(&(cur_proc_info -> start_time));
+	pinfo.pid        = cur_proc_info -> pid;
+	pinfo.state      = cur_proc_info -> state;
+	pinfo.cutime     = 0;
+	pinfo.cstime     = 0;
+	pinfo.parent_pid = cur_proc_info -> parent -> pid;
+	pinfo.start_time = timespec_to_ns(&(cur_proc_info -> start_time));
 	
 	// gahhhh plz use typedef
 	// this ll implementation is just silly.
@@ -49,13 +49,13 @@ asmlinkage long new_proc_info(struct prinfo* info)
 	list_for_each_prev(p, &(cur_proc_info -> children))
 	{
 		           t   = list_entry(p, struct task_struct, sibling);
-		pinfo -> cutime  += cputime_to_usecs((t -> utime));
-		pinfo -> cstime  += cputime_to_usecs((t -> stime));
+		pinfo.cutime  += cputime_to_usecs((t -> utime));
+		pinfo.cstime  += cputime_to_usecs((t -> stime));
 		time_nano      = timespec_to_ns(&(t  -> start_time));
 		if (tmp_st > time_nano)
 		{ // every iteration check if this is youngest we've seen so far
 			tmp_st = time_nano
-			pinfo -> youngest_child = t -> pid;
+			pinfo.youngest_child = t -> pid;
 		}
 	}
 
@@ -63,13 +63,13 @@ asmlinkage long new_proc_info(struct prinfo* info)
 	list_for_each(p, &(cur_proc_info -> children))
 	{
 		           t   = list_entry(p, struct task_struct, sibling);
-		pinfo -> cutime  += cputime_to_usecs((t -> utime));
-		pinfo -> cstime  += cputime_to_usecs((t -> stime));
+		pinfo.cutime  += cputime_to_usecs((t -> utime));
+		pinfo.cstime  += cputime_to_usecs((t -> stime));
 		time_nano      = timespec_to_ns(&(t  -> start_time));
 		if (tmp_st > time_nano)
 		{ // every iteration check if this is youngest we've seen so far
 			tmp_st = time_nano
-			pinfo -> youngest_child = t -> pid;
+			pinfo.youngest_child = t -> pid;
 		}
 	}
 
@@ -83,12 +83,12 @@ asmlinkage long new_proc_info(struct prinfo* info)
 		        t = list_entry(p, struct task_struct, sibling);
 		time_nano = timespec_to_ns(&(t -> start_time));
 
-		if ( (time_nano < pinfo -> start_time)  &&  (time_nano > tmp_st) )
+		if ( (time_nano < pinfo.start_time)  &&  (time_nano > tmp_st) )
 		{
 			tmp_st  = time_nano;
 			tmp_pid = t -> pid;
 		}
-		else if ( (time_nano > pinfo -> start_time)  &&  (time_nano < xmp_st) )
+		else if ( (time_nano > pinfo.start_time)  &&  (time_nano < xmp_st) )
 		{
 			xmp_st  = time_nano;
 			xmp_pid = t -> pid;
@@ -101,12 +101,12 @@ asmlinkage long new_proc_info(struct prinfo* info)
 		        t = list_entry(p, struct task_struct, sibling);
 		time_nano = timespec_to_ns(&(t -> start_time));
 
-		if ( (time_nano < pinfo -> start_time)  &&  (time_nano > tmp_st) )
+		if ( (time_nano < pinfo.start_time)  &&  (time_nano > tmp_st) )
 		{
 			tmp_st  = time_nano
 			tmp_pid = t -> pid;
 		}
-		else if ( (time_nano > pinfo -> start_time)  &&  (time_nano < xmp_st) )
+		else if ( (time_nano > pinfo.start_time)  &&  (time_nano < xmp_st) )
 		{
 			xmp_st  = time_nano
 			xmp_pid = t -> pid;
@@ -115,13 +115,13 @@ asmlinkage long new_proc_info(struct prinfo* info)
 
 	tmp_pid = tmp_pid == 0 ? -1 : tmp_pid;
 
-	pinfo -> younger_sibling = xmp_pid;
-	pinfo -> older_sibling   = tmp_pid;
-	pinfo -> uid             = current_uid();
-	pinfo -> user_time       = cputime_to_usecs(cur_proc_info -> utime);
-	pinfo -> sys_time        = cputime_to_usecs(cur_proc_info -> stime);
+	pinfo.younger_sibling = xmp_pid;
+	pinfo.older_sibling   = tmp_pid;
+	pinfo.uid             = current_uid();
+	pinfo.user_time       = cputime_to_usecs(cur_proc_info -> utime);
+	pinfo.sys_time        = cputime_to_usecs(cur_proc_info -> stime);
 
-	if(copy_to_user(info, pinfo, sizeof(prinfo)))
+	if(copy_to_user(info, &pinfo, sizeof(prinfo)))
 	{ // attempt to copy the struct to userspace
 		return EFAULT;
 	}
