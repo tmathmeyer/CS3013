@@ -14,8 +14,8 @@
 //};
 
 
-gender occupying_sex;
-int occupancy_count;
+int men = 0;
+int women = 0;
 
 //statistics
 
@@ -26,14 +26,27 @@ int total_women;
 
 
 
+int state_lock = 0;
+gender lock_sex = MALE;
+
+void lock(gender g)
+{
+	state_lock = 1;
+	lock_sex = g;
+}
+
+void unlock()
+{
+	if (men == 0 && women == 0)
+	{
+		state_lock = 0;
+	}
+}
+
 
 
 void initialize()
 {
-	occupying_sex = NONE;
-	occupancy_count = 0;
-	int highest_concurrent = 0;
-	gender popular_user = NONE;
 	printf("initialized\n");
 }
 
@@ -47,28 +60,26 @@ void finalize()
 
 void enter(gender g)
 {
-	while(occupying_sex != NONE  &&  occupying_sex != g)
-	{
-		//wait
-	}
-	occupying_sex = g;
-	occupancy_count++;
-
-	
 	if (g == MALE)
 	{
+		while(lock_sex==FEMALE && state_lock==1);
+		lock(g);
+		men++;
 		total_men++;
-		if(occupancy_count > highest_men)
+		if(men > highest_men)
 		{
-			highest_men = occupancy_count;
+			highest_men = men;
 		}
 	}
 	else if (g == FEMALE)
 	{
+		while(lock_sex==MALE && state_lock==1);
+		lock(g);
+		women++;
 		total_women++;
-		if(occupancy_count > highest_women)
+		if(women > highest_women)
 		{
-			highest_women = occupancy_count;
+			highest_women = women;
 		}
 	}
 	else
@@ -76,18 +87,20 @@ void enter(gender g)
 		printf("a genderless person entered!\n");
 	}
 
-
-
 	return;
 }
 
 
 void leave()
 {
-	--occupancy_count;
-	if (occupancy_count <= 0)
+	if (women > 0)
 	{
-		occupancy_count = 0;
-		occupying_sex = NONE;
+		women --;
 	}
+	else if (men > 0)
+	{
+		men --;
+	}
+
+	unlock();
 }

@@ -8,8 +8,7 @@
 typedef enum 
 {
 	MALE,
-	FEMALE,
-	NONE
+	FEMALE
 } gender;
 
 

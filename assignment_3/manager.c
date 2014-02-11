@@ -47,6 +47,7 @@ int binary_dist(double mean, double stddev)
 }
 
 
+
 void* individual(void* arg)
 {
 	indiv_info* me = (indiv_info*)(arg);
@@ -58,6 +59,7 @@ void* individual(void* arg)
 
 	int trips = me -> loops;
 	int trips_loop = trips;
+	int trips_count = 0;
 
 	int total_waiting = 0;
 	int total_going   = 0;
@@ -71,7 +73,7 @@ void* individual(void* arg)
 		if (poop < 0) poop = -poop;
 		if (hold_it < 0) hold_it = -hold_it;
 
-		usleep(hold_it/10);
+		usleep(hold_it/10 + 1); // never wait for anything less than 1 ms
 
 		clock_t start = clock();
 		enter(me -> g);
@@ -98,22 +100,27 @@ void* individual(void* arg)
 		}
 		
 
-		usleep(poop/10);
+		usleep(poop/10 + 1); // never wait for anything less than 1 ms
 
 		leave();
+		trips_count++;
 	}
 
 
 	
-	minimum_waiting = (minimum_waiting) / (CLOCKS_PER_SEC / 10000);
-	maximum_waiting = (maximum_waiting) / (CLOCKS_PER_SEC / 10000);
+	minimum_waiting = (minimum_waiting) / ((CLOCKS_PER_SEC / 1000)+1);
+	maximum_waiting = (maximum_waiting) / ((CLOCKS_PER_SEC / 1000)+1);
 
-	printf("\n╔═══════════════\n║id: %i\n║sex: %s\n║trips: %i\n║min:\n║\twait:%i\n║\tstay:%i\n║max:\n║\twait:%i\n║\tstay:%i\n║avg:\n║\twait:%i\n║\tstay:%i\n╚═══════════════\n", 
-			me -> id, (me -> g == MALE) ? "male" : "female", trips,
+	printf("\n╔═══════════════\n║id: %i\n║sex: %s\n║trips: %i.%i\n║min:\n║\twait:%i\n║\tstay:%i\n║max:\n║\twait:%i\n║\tstay:%i\n║avg:\n║\twait:%i\n║\tstay:%i\n╚═══════════════\n", 
+			me -> id, (me -> g == MALE) ? "male" : "female", trips, trips_count,
 			minimum_waiting, minimum_going/1000,
 			maximum_waiting, maximum_going/1000,
-			total_waiting / (trips*100), total_going / trips);
+			total_waiting / (trips*100+1), total_going / (trips+1));
 
+	if (trips -trips_count)
+	{
+		printf("SHIT");
+	}
 }
 
 int main(int argc, char** argv)
