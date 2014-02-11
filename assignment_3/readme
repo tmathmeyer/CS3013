@@ -1,0 +1,226 @@
+Bathroom Module:
+	The concept that I used for the bathroom is fairly straight forward:
+	the bathroom contains the number of occupants and their gender. When
+	a person asks to enter the bathroom, their gender is checked against
+	the current state of the bathroom. If they have the same gender, they
+	are allowed in, the number of occupants is increased, and the stats
+	are collected. If they do not have the same gender, they wait for the
+	gender to change to either their own gender, or the NONE gender. As 
+	soon as either of these conditions are met, the state is immediatly
+	changed to the gender of the new occupant. When an occupant leavs the
+	bathroom, the number of occupants decreases. If that number becomes 0,
+	then the state of the bathroom changes to the NONE gender, thereby
+	allowing whoever next queries the bathroom to gain entrance.
+
+Multi-Threaded Test Program:
+	compile with `make` or `make all`
+	run with ./bathroom X Y W Z
+		where:
+			X = number of occupants (men + women)
+			Y = average number of times that each occupant uses the bathroom
+			W = average time that the people go about doing other things
+				between leaving the bathroom and getting back in queue
+			Z = average amount of time that an occupant spends in the bathroom
+
+		none of these numbers have particular units attached to them. for the sake
+		of simplicity I would estimate (based on test values) that each unit is about
+		4-5 seconds.
+
+Test Cases:
+
+	(5 people, each go ~6 times, 30 minutes apart, for about 3 minutes)
+	$ ./bathroom 5 6 360 36
+	initialized
+
+	╔═══════════════
+	║id: 1
+	║sex: female
+	║trips: 4
+	║min:
+	║	wait:0
+	║	stay:1
+	║max:
+	║	wait:17
+	║	stay:39
+	║avg:
+	║	wait:7
+	║	stay:22
+	╚═══════════════
+
+	╔═══════════════
+	║id: 0
+	║sex: female
+	║trips: 5
+	║min:
+	║	wait:0
+	║	stay:16
+	║max:
+	║	wait:26
+	║	stay:41
+	║avg:
+	║	wait:5
+	║	stay:27
+	╚═══════════════
+
+	╔═══════════════
+	║id: 4
+	║sex: female
+	║trips: 6
+	║min:
+	║	wait:0
+	║	stay:15
+	║max:
+	║	wait:34
+	║	stay:75
+	║avg:
+	║	wait:10
+	║	stay:40
+	╚═══════════════
+
+	╔═══════════════
+	║id: 3
+	║sex: male
+	║trips: 8
+	║min:
+	║	wait:0
+	║	stay:25
+	║max:
+	║	wait:0
+	║	stay:61
+	║avg:
+	║	wait:0
+	║	stay:40
+	╚═══════════════
+
+	╔═══════════════
+	║id: 2
+	║sex: male
+	║trips: 8
+	║min:
+	║	wait:0
+	║	stay:2
+	║max:
+	║	wait:3
+	║	stay:67
+	║avg:
+	║	wait:0
+	║	stay:29
+	╚═══════════════
+	at maximum, there were:
+		men:   2
+		women: 2
+	and a total or 16 men and 15 women entered the bathroom
+
+
+	(2 people, each go ~6 times, 30 minutes apart, for about 3 minutes)
+	$ ./bathroom 2 6 360 36
+	initialized
+
+	╔═══════════════
+	║id: 1
+	║sex: male
+	║trips: 3
+	║min:
+	║	wait:0
+	║	stay:10
+	║max:
+	║	wait:0
+	║	stay:52
+	║avg:
+	║	wait:0
+	║	stay:24
+	╚═══════════════
+
+	╔═══════════════
+	║id: 0
+	║sex: female
+	║trips: 4
+	║min:
+	║	wait:0
+	║	stay:2
+	║max:
+	║	wait:0
+	║	stay:52
+	║avg:
+	║	wait:0
+	║	stay:26
+	╚═══════════════
+	at maximum, there were:
+		men:   1
+		women: 1
+	and a total or 3 men and 4 women entered the bathroom
+
+
+	(30 people, each go ~10 times, 15 minutes apart, for about 5 minutes)
+	((only the last three occupants are provided))
+	$ ./bathroom 30 10 180 60
+
+	╔═══════════════
+	║id: 18
+	║sex: female
+	║trips: 13
+	║min:
+	║	wait:0
+	║	stay:21
+	║max:
+	║	wait:3750
+	║	stay:141
+	║avg:
+	║	wait:437
+	║	stay:76
+	╚═══════════════
+
+	╔═══════════════
+	║id: 24
+	║sex: male
+	║trips: 12
+	║min:
+	║	wait:0
+	║	stay:29
+	║max:
+	║	wait:4741
+	║	stay:90
+	║avg:
+	║	wait:449
+	║	stay:59
+	╚═══════════════
+
+	╔═══════════════
+	║id: 28
+	║sex: male
+	║trips: 16
+	║min:
+	║	wait:0
+	║	stay:24
+	║max:
+	║	wait:4828
+	║	stay:112
+	║avg:
+	║	wait:333
+	║	stay:62
+	╚═══════════════
+	at maximum, there were:
+		men:   9
+		women: 19
+	and a total or 101 men and 184 women entered the bathroom
+
+
+
+
+
+
+
+Final Notes:
+
+	The random number generator is NOT stable. This is because it is fast.
+	I mused over achieving both of them through the use of the Ziggurat
+	random distribution generator, but it is very advanced and I would then
+	feel complied to write a proof of correctness for it. In any case, the
+	programm will sometimes throw a floating point exception. All that is
+	required to fix this is to re-run the program. Because it is random, of
+	course, the more times you call the RNG, the more likely you are to hit
+	floating point exception. With numbers of occupants above 100, I've found
+	that it happens about one in ten times, and with numbers below 40, it has
+	never happened (to me). Above 400 however, and it seems almost inevitable.
+	Please dont attempt to use large groups of occupants, not only will it error,
+	but my console output is very verbose and will likely become un-readable.
