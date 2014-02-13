@@ -1,3 +1,7 @@
+# Ted Meyer
+# Makefile
+# GPLv2
+
 all: bathroom.o manager.o
 	gcc -Wall -lm -lpthread -o bathroom bathroom.o manager.o
 

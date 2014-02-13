@@ -1,3 +1,7 @@
+//Ted Meyer
+//bathroom.c
+//GPLv2
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
