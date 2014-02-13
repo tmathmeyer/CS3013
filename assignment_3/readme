@@ -1,16 +1,27 @@
+warning: putting in large number of people can be slow, 
+and combining them with long wait times can be VERY SLOW.
+It might look like it's locking up, but it's just processing.
+using 4000 people at 3 trips each took about 20 minutes for me
+
 Bathroom Module:
 	The concept that I used for the bathroom is fairly straight forward:
-	the bathroom contains the number of occupants and their gender. When
-	a person asks to enter the bathroom, their gender is checked against
-	the current state of the bathroom. If they have the same gender, they
-	are allowed in, the number of occupants is increased, and the stats
-	are collected. If they do not have the same gender, they wait for the
-	gender to change to either their own gender, or the NONE gender. As 
-	soon as either of these conditions are met, the state is immediatly
-	changed to the gender of the new occupant. When an occupant leavs the
-	bathroom, the number of occupants decreases. If that number becomes 0,
-	then the state of the bathroom changes to the NONE gender, thereby
-	allowing whoever next queries the bathroom to gain entrance.
+	There is a sign on the wall directly outside the bathroom, and only
+	one person can look at the sign at a time. This is achieved through
+	the use of locking mutexes around all access to the sign. The number
+	of people in the bathroom is displayed on the sign, as is the sex of
+	the last person to enter the bathroom. When a user attempts to enter
+	the bathroom, they get the lock on the mutex, read the data on the 
+	sign, and determine whether they can enter the bathroom. If they
+	determine that they can enter the bathroom, they change the data on
+	the sign to have their current gender as well as increase the number
+	of occupants posted by one. If they determine that they cannot enter
+	the bathroom, they simply stop looking at the sign, and get back into
+	line. When a person comes out of the bathroom, they also get in the
+	line (represented with the mutex) to look at the sign, except that 
+	when they get to the sign, they do nothing but decrease the number
+	of occupants by one. Since only one person can be looking at the sign
+	at a time, there is no danger of two people modifying the sign's data
+	at the same time.
 
 Multi-Threaded Test Program:
 	compile with `make` or `make all`
@@ -28,23 +39,38 @@ Multi-Threaded Test Program:
 
 Test Cases:
 
-	(5 people, each go ~6 times, 30 minutes apart, for about 3 minutes)
+	(5 people, each go ~6 times, 360 units apart, for about 36 units)
 	$ ./bathroom 5 6 360 36
 	initialized
 
 	╔═══════════════
-	║id: 1
+	║id: 3
 	║sex: female
-	║trips: 4
+	║trips: 3
 	║min:
-	║	wait:0
-	║	stay:1
+	║	wait:5
+	║	stay:5
 	║max:
-	║	wait:17
-	║	stay:39
+	║	wait:125
+	║	stay:66
 	║avg:
-	║	wait:7
-	║	stay:22
+	║	wait:33
+	║	stay:29
+	╚═══════════════
+
+	╔═══════════════
+	║id: 2
+	║sex: male
+	║trips: 5
+	║min:
+	║	wait:2
+	║	stay:23
+	║max:
+	║	wait:27
+	║	stay:43
+	║avg:
+	║	wait:9
+	║	stay:30
 	╚═══════════════
 
 	╔═══════════════
@@ -52,157 +78,142 @@ Test Cases:
 	║sex: female
 	║trips: 5
 	║min:
-	║	wait:0
-	║	stay:16
+	║	wait:2
+	║	stay:12
 	║max:
-	║	wait:26
-	║	stay:41
+	║	wait:399
+	║	stay:62
 	║avg:
-	║	wait:5
-	║	stay:27
+	║	wait:180
+	║	stay:31
 	╚═══════════════
 
 	╔═══════════════
 	║id: 4
 	║sex: female
-	║trips: 6
+	║trips: 9
 	║min:
-	║	wait:0
-	║	stay:15
+	║	wait:1
+	║	stay:13
 	║max:
-	║	wait:34
-	║	stay:75
+	║	wait:333
+	║	stay:58
 	║avg:
-	║	wait:10
-	║	stay:40
+	║	wait:39
+	║	stay:32
 	╚═══════════════
 
 	╔═══════════════
-	║id: 3
-	║sex: male
-	║trips: 8
+	║id: 1
+	║sex: female
+	║trips: 7
 	║min:
-	║	wait:0
-	║	stay:25
+	║	wait:2
+	║	stay:23
 	║max:
-	║	wait:0
-	║	stay:61
+	║	wait:574
+	║	stay:43
 	║avg:
-	║	wait:0
-	║	stay:40
-	╚═══════════════
-
-	╔═══════════════
-	║id: 2
-	║sex: male
-	║trips: 8
-	║min:
-	║	wait:0
-	║	stay:2
-	║max:
-	║	wait:3
-	║	stay:67
-	║avg:
-	║	wait:0
+	║	wait:132
 	║	stay:29
 	╚═══════════════
 	at maximum, there were:
 		men:   2
-		women: 2
-	and a total or 16 men and 15 women entered the bathroom
+		women: 1
+	and a total or 5 men and 24 women entered the bathroom
 
 
-	(2 people, each go ~6 times, 30 minutes apart, for about 3 minutes)
+	(2 people, each go ~6 times, 360 units apart, for about 36 units)
 	$ ./bathroom 2 6 360 36
 	initialized
 
 	╔═══════════════
 	║id: 1
-	║sex: male
-	║trips: 3
+	║sex: female
+	║trips: 2
 	║min:
-	║	wait:0
-	║	stay:10
+	║	wait:2
+	║	stay:16
 	║max:
-	║	wait:0
-	║	stay:52
+	║	wait:3
+	║	stay:41
 	║avg:
-	║	wait:0
-	║	stay:24
+	║	wait:1
+	║	stay:19
+	╚═══════════════
+
+	╔═══════════════
+	║id: 0
+	║sex: male
+	║trips: 6
+	║min:
+	║	wait:1
+	║	stay:26
+	║max:
+	║	wait:15
+	║	stay:47
+	║avg:
+	║	wait:3
+	║	stay:35
+	╚═══════════════
+	at maximum, there were:
+		men:   2
+		women: 1
+	and a total or 6 men and 2 women entered the bathroom
+
+
+	(30 people, each go ~10 times, 15 units apart, for about 5 units)
+	((only the last three occupants are provided))
+	$ ./bathroom 30 10 180 60
+
+	╔═══════════════
+	║id: 4
+	║sex: female
+	║trips: 15
+	║min:
+	║	wait:3
+	║	stay:14
+	║max:
+	║	wait:13505
+	║	stay:101
+	║avg:
+	║	wait:1103
+	║	stay:57
 	╚═══════════════
 
 	╔═══════════════
 	║id: 0
 	║sex: female
-	║trips: 4
+	║trips: 9
 	║min:
-	║	wait:0
-	║	stay:2
+	║	wait:12
+	║	stay:1
 	║max:
-	║	wait:0
-	║	stay:52
+	║	wait:13108
+	║	stay:102
 	║avg:
-	║	wait:0
-	║	stay:26
+	║	wait:1809
+	║	stay:42
+	╚═══════════════
+
+	╔═══════════════
+	║id: 29
+	║sex: male
+	║trips: 9
+	║min:
+	║	wait:1
+	║	stay:1
+	║max:
+	║	wait:15333
+	║	stay:96
+	║avg:
+	║	wait:2725
+	║	stay:54
 	╚═══════════════
 	at maximum, there were:
-		men:   1
-		women: 1
-	and a total or 3 men and 4 women entered the bathroom
-
-
-	(30 people, each go ~10 times, 15 minutes apart, for about 5 minutes)
-	((only the last three occupants are provided))
-	$ ./bathroom 30 10 180 60
-
-	╔═══════════════
-	║id: 18
-	║sex: female
-	║trips: 13
-	║min:
-	║	wait:0
-	║	stay:21
-	║max:
-	║	wait:3750
-	║	stay:141
-	║avg:
-	║	wait:437
-	║	stay:76
-	╚═══════════════
-
-	╔═══════════════
-	║id: 24
-	║sex: male
-	║trips: 12
-	║min:
-	║	wait:0
-	║	stay:29
-	║max:
-	║	wait:4741
-	║	stay:90
-	║avg:
-	║	wait:449
-	║	stay:59
-	╚═══════════════
-
-	╔═══════════════
-	║id: 28
-	║sex: male
-	║trips: 16
-	║min:
-	║	wait:0
-	║	stay:24
-	║max:
-	║	wait:4828
-	║	stay:112
-	║avg:
-	║	wait:333
-	║	stay:62
-	╚═══════════════
-	at maximum, there were:
-		men:   9
-		women: 19
-	and a total or 101 men and 184 women entered the bathroom
+		men:   10
+		women: 15
+	and a total or 112 men and 171 women entered the bathroom
 
 
 
@@ -210,17 +221,3 @@ Test Cases:
 
 
 
-Final Notes:
-
-	The random number generator is NOT stable. This is because it is fast.
-	I mused over achieving both of them through the use of the Ziggurat
-	random distribution generator, but it is very advanced and I would then
-	feel complied to write a proof of correctness for it. In any case, the
-	programm will sometimes throw a floating point exception. All that is
-	required to fix this is to re-run the program. Because it is random, of
-	course, the more times you call the RNG, the more likely you are to hit
-	floating point exception. With numbers of occupants above 100, I've found
-	that it happens about one in ten times, and with numbers below 40, it has
-	never happened (to me). Above 400 however, and it seems almost inevitable.
-	Please dont attempt to use large groups of occupants, not only will it error,
-	but my console output is very verbose and will likely become un-readable.

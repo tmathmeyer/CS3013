@@ -46,8 +46,6 @@ int binary_dist(double mean, double stddev)
 	}
 }
 
-
-
 void* individual(void* arg)
 {
 	indiv_info* me = (indiv_info*)(arg);
@@ -67,55 +65,43 @@ void* individual(void* arg)
 
 	while(--trips_loop >= 0)
 	{
-		int poop = (int)(binary_dist(me->stay, me->stay/2)) * 1000;
-		int hold_it = (int)(binary_dist(me->arr, me->arr/2)) * 1000;
-
-		if (poop < 0) poop = -poop;
-		if (hold_it < 0) hold_it = -hold_it;
-
-		usleep(hold_it/10 + 1); // never wait for anything less than 1 ms
-
-		clock_t start = clock();
-		enter(me -> g);
-		
-		float waiting_elapsed = clock()-start;
-
-		if (waiting_elapsed > maximum_waiting)
+		int poop = (int)(binary_dist(me->stay, me->stay/2));
+		int hold_it = (int)(binary_dist(me->arr, me->arr/2));
+		if (poop <= 0)
 		{
-			maximum_waiting = waiting_elapsed;
+			poop = -poop + 1;
 		}
-		if (waiting_elapsed < minimum_waiting)
+		if (hold_it <= 0)
 		{
-			minimum_waiting = waiting_elapsed;
+			hold_it = -hold_it + 1;
 		}
-		total_waiting += waiting_elapsed;
-		total_going   += poop / 1000;
-		if (poop > maximum_going)
-		{
-			maximum_going = poop;
-		}
-		if (poop < minimum_going)
-		{
-			minimum_going = poop;
-		}
-		
 
-		usleep(poop/10 + 1); // never wait for anything less than 1 ms
+		usleep(hold_it);
 
+		clock_t start = clock(); enter(me -> g); float waiting_elapsed = clock()-start;
+		{
+			total_waiting += waiting_elapsed;
+			total_going   += poop;
+			if (waiting_elapsed > maximum_waiting)
+				maximum_waiting = waiting_elapsed;
+			if (waiting_elapsed < minimum_waiting)
+				minimum_waiting = waiting_elapsed;
+			if (poop > maximum_going)
+				maximum_going = poop;
+			if (poop < minimum_going)
+				minimum_going = poop;
+			
+			usleep(poop);
+		}
 		leave();
 		trips_count++;
 	}
 
-
-	
-	minimum_waiting = (minimum_waiting) / ((CLOCKS_PER_SEC / 1000)+1);
-	maximum_waiting = (maximum_waiting) / ((CLOCKS_PER_SEC / 1000)+1);
-
-	printf("\n╔═══════════════\n║id: %i\n║sex: %s\n║trips: %i.%i\n║min:\n║\twait:%i\n║\tstay:%i\n║max:\n║\twait:%i\n║\tstay:%i\n║avg:\n║\twait:%i\n║\tstay:%i\n╚═══════════════\n", 
-			me -> id, (me -> g == MALE) ? "male" : "female", trips, trips_count,
-			minimum_waiting, minimum_going/1000,
-			maximum_waiting, maximum_going/1000,
-			total_waiting / (trips*100+1), total_going / (trips+1));
+	printf("\n╔═══════════════\n║id: %i\n║sex: %s\n║trips: %i\n║min:\n║\twait:%i\n║\tstay:%i\n║max:\n║\twait:%i\n║\tstay:%i\n║avg:\n║\twait:%i\n║\tstay:%i\n╚═══════════════\n", 
+			me -> id, (me -> g == MALE) ? "male" : "female", trips,
+			minimum_waiting, minimum_going,
+			maximum_waiting, maximum_going,
+			total_waiting / (trips+1), total_going / (trips+1));
 
 	if (trips -trips_count)
 	{

@@ -5,6 +5,7 @@
 #include "bathroom.h"
 #include <stdio.h>
 #include <time.h>
+#include <pthread.h>
 
 //enum gender = 
 //{
@@ -14,39 +15,21 @@
 //};
 
 
-int men = 0;
-int women = 0;
-
 //statistics
 
-int highest_men;
-int highest_women;
-int total_men;
-int total_women;
+int highest_men = 0;
+int highest_women = 0;
+int total_men = 0;
+int total_women = 0;
 
 
-
-int state_lock = 0;
-gender lock_sex = MALE;
-
-void lock(gender g)
-{
-	state_lock = 1;
-	lock_sex = g;
-}
-
-void unlock()
-{
-	if (men == 0 && women == 0)
-	{
-		state_lock = 0;
-	}
-}
+pthread_mutex_t doorsign;
 
 
 
 void initialize()
 {
+	pthread_mutex_init(&doorsign, NULL);
 	printf("initialized\n");
 }
 
@@ -58,49 +41,61 @@ void finalize()
 
 
 
-void enter(gender g)
+
+int occupancy = 0;
+gender occupant = MALE;
+
+void stats(gender g)
 {
+	if (g == FEMALE)
+	{
+		total_women ++;
+		if (occupancy > highest_women)
+		{
+			highest_women = occupancy;
+		}
+	}
 	if (g == MALE)
 	{
-		while(lock_sex==FEMALE && state_lock==1);
-		lock(g);
-		men++;
-		total_men++;
-		if(men > highest_men)
+		total_men ++;
+		if (occupancy > highest_men)
 		{
-			highest_men = men;
+			highest_men = occupancy;
 		}
 	}
-	else if (g == FEMALE)
-	{
-		while(lock_sex==MALE && state_lock==1);
-		lock(g);
-		women++;
-		total_women++;
-		if(women > highest_women)
-		{
-			highest_women = women;
-		}
-	}
-	else
-	{
-		printf("a genderless person entered!\n");
-	}
-
-	return;
 }
 
+
+void enter(gender g)
+{
+	while(1)
+	{
+		pthread_mutex_lock(&doorsign);
+
+		if (occupancy == 0 || occupant == g)
+		{
+			occupancy++;
+			occupant = g;
+
+			stats(g);
+
+			pthread_mutex_unlock(&doorsign);
+			return;
+		}
+
+		pthread_mutex_unlock(&doorsign);
+	}
+}
 
 void leave()
 {
-	if (women > 0)
+	pthread_mutex_lock(&doorsign);
+	occupancy --;
+	if (occupancy <= 0)
 	{
-		women --;
+		occupancy = 0;
 	}
-	else if (men > 0)
-	{
-		men --;
-	}
-
-	unlock();
+	pthread_mutex_unlock(&doorsign);
 }
+
+
