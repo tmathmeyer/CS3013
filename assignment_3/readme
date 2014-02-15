@@ -1,3 +1,5 @@
+Ted Meyer
+
 warning: putting in large number of people can be slow, 
 and combining them with long wait times can be VERY SLOW.
 It might look like it's locking up, but it's just processing.
