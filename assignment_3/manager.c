@@ -111,6 +111,8 @@ void* individual(void* arg)
 	{
 		printf("SHIT");
 	}
+
+    free(me);
 }
 
 int main(int argc, char** argv)
