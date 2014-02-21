@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <pthread.h>
+#include <time.h>
 
 //enum gender = 
 //{
@@ -24,19 +25,26 @@ int total_women = 0;
 
 
 pthread_mutex_t doorsign;
-
+clock_t sim_start;
+clock_t sim_last;
+unsigned long long avg;
 
 
 void initialize()
 {
+	sim_last = clock();
+	sim_start = clock();
+	avg = 0;
 	pthread_mutex_init(&doorsign, NULL);
 	printf("initialized\n");
 }
 
 void finalize()
 {
-	printf("at maximum, there were:\n\tmen:   %i\n\twomen: %i\nand a total or %i men and %i women entered the bathroom\n",
-		   highest_men, highest_women, total_men, total_women);
+	unsigned long long total = clock()-sim_start;
+
+	printf("at maximum, there were:\n\tmen:   %i\n\twomen: %i\nand a total or %i men and %i women entered the bathroom\nThere were %llu people on average waiting for the bathroom\n",
+		   highest_men, highest_women, total_men, total_women, avg/total);
 }
 
 
@@ -63,6 +71,10 @@ void stats(gender g)
 			highest_men = occupancy;
 		}
 	}
+
+	clock_t sim_new = clock();
+	avg += occupancy * (sim_new - sim_last);
+	sim_last = sim_new;
 }
 
 
@@ -95,6 +107,9 @@ void leave()
 	{
 		occupancy = 0;
 	}
+
+	stats(-2);
+
 	pthread_mutex_unlock(&doorsign);
 }
 
