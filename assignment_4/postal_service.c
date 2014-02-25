@@ -43,13 +43,6 @@
  */
 
 
-// struct for hashmap
-typedef struct map_elem {
-        struct map_elem* next;
-        pid_t            id;
-        mailbox*         box;
-} map_elem;
-
 // struct for messages (ll)
 typedef struct message {
         struct message *next;
@@ -64,6 +57,13 @@ typedef struct mailbox {
         int msg_count;
         message* contents;
 } mailbox;
+
+// struct for hashmap
+typedef struct map_elem {
+        struct map_elem* next;
+        pid_t            id;
+        mailbox*         box;
+} map_elem;
 
 
 /*
