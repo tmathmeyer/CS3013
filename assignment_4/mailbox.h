@@ -12,7 +12,12 @@
 #define __MAILBOX__
 
 #include <stdbool.h>
+
+#ifndef __KERNEL__
+#include <sys/types.h>
+#else
 #include <linux/types.h>
+#endif
 
 #define NO_BLOCK 0
 #define BLOCK   1

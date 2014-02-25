@@ -11,8 +11,8 @@
 #include "mailbox.h"
 
 // functions
-static int  interceptor_start(void);
-static void interceptor_end  (void);
+int  interceptor_start(void);
+void interceptor_end  (void);
 
 
 // struct for messages (ll)

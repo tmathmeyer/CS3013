@@ -19,6 +19,7 @@ int map_init()
     {
         *(map + i) = 0;
     }
+    return 0;
 }
 
 int map_put(pid_t id, mailbox* box)
@@ -44,7 +45,9 @@ int map_put(pid_t id, mailbox* box)
         {
             list -> next = n;
         }
+        list = list -> next;
     }
+    return 0;
 }
 
 mailbox* map_get(pid_t id)
@@ -82,7 +85,7 @@ int map_rem(pid_t id)
     return 0;
 }
 
-map_stop()
+int map_stop()
 {
     int i = 0;
     while(i < MAP_SIZE)
