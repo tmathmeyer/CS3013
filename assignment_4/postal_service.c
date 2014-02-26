@@ -20,6 +20,8 @@
 #define __KERNEL__ 
 #define MODULE
 
+#define MAP_SIZE 16
+#define MAILBOX_SIZE 128
 
 /*
  *=============================End Defenitions==================================
@@ -56,6 +58,7 @@ typedef struct mailbox {
         pid_t owner;
         int msg_count;
         message* contents;
+        char unblocked;
 } mailbox;
 
 // struct for hashmap
@@ -116,9 +119,10 @@ int in_operation = 0;
 
 int map_init()
 {
+    int i;
     hashmap = kmem_cache_create("hashmap_pid_to_mailbox", sizeof(map_elem), 0, 0, NULL);
     map = (map_elem**) kmalloc(MAP_SIZE * sizeof(map_elem*), GFP_KERNEL);
-    int i; for(i=0; i<MAP_SIZE; i++)
+    for(i=0; i<MAP_SIZE; i++)
     {
         *(map + i) = 0;
     }
@@ -216,13 +220,60 @@ int map_stop()
 
 asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
 {
-	printk(KERN_INFO "send mail");
-	return 2;
+    mailbox* recipient;
+    struct message* newmsg;
+    int j;
+
+    if (len < 0 || len > MAX_MSG_SIZE)
+    {
+        return MSG_LENGTH_ERROR;
+    }
+    if (recip < 0 || msg < 0 || !(block==BLOCK || BLOCK==NO_BLOCK))
+    {
+        return MSG_ARG_ERROR;
+    }
+
+    do
+    {
+        //lock the mutex
+
+        recipient = map_get(recip);
+        if (!recipient)
+        {
+            return MAILBOX_INVALID;
+        }
+        else if (!recipient -> unblocked)
+        {
+            return MAILBOX_STOPPED;
+        }
+        else if (recipient -> msg_count < MAILBOX_SIZE)
+        {
+            newmsg = (message*)kmem_cache_alloc(messages, GFP_KERNEL);
+            for(j=0; j<len; j++)
+            {
+                *((newmsg -> data) + j) = *((char*)msg + j);
+            }
+            recipient -> msg_count = recipient  -> msg_count + 1;
+            newmsg    -> next      = recipient  -> contents;
+            newmsg    -> sender = 0;
+            newmsg    -> dest = recip;
+            recipient -> contents  = newmsg;
+
+            return 0;
+        }
+
+        //unlock the mutex
+    }
+    while(block);
+
+	return MAILBOX_FULL;
 }
 
 asmlinkage long receive(pid_t* sender, void* msg, int* len, bool block)
 {
-    printk(KERN_INFO "get mail");
+    
+    
+    
     return 2;
 }
 
@@ -234,7 +285,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
 
 
  /*
- *=============================End Global Vars==================================
+ *=============================End New System Calle=============================
  *=============================Begin Syscall Table functions====================
  */
 
