@@ -339,6 +339,10 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
                 
                 kmem_cache_free(messages, msg);
                 last -> next = 0;
+                if (last == my_mail -> contents)
+                {
+                    my_mail -> contents = 0;
+                }
                 my_mail -> msg_count = my_mail -> msg_count - 1;
                 spin_unlock(&usps_lock);
                 return 0;
