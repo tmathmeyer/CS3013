@@ -82,6 +82,7 @@ int map_put(pid_t, mailbox* box);
 int map_rem(pid_t id);
 int map_stop(void);
 mailbox* map_get(pid_t id);
+int free_all_mail(mailbox* box);
 
 // interceptor calls
 static int  interceptor_start(void);
@@ -186,6 +187,7 @@ int map_rem(pid_t id)
         {
             map_elem* del = list -> next;
             list -> next = list -> next -> next;
+            free_all_mail(del->box);
             kmem_cache_free(hashmap, del);
             return 0;
         }
@@ -204,11 +206,24 @@ int map_stop()
         {
             kill = front;
             front = front -> next;
+            free_all_mail(kill->box);
             kmem_cache_free(hashmap, kill);
         }
         i++;
     }
     kmem_cache_destroy(hashmap);
+    return 0;
+}
+
+int free_all_mail(mailbox* box)
+{
+    while(box -> contents)
+    {
+        message* k = box -> contents;
+        box -> contents = box -> contents -> next;
+        kmem_cache_free(messages, k);
+    }
+    kmem_cache_free(mailboxes, box);
     return 0;
 }
 
@@ -275,6 +290,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
 {
     mailbox* my_mail;
     message* msg;
+    message* last = 0;
     do
     {
         // lock mutex
@@ -290,29 +306,35 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             {
                 while(msg -> next != 0)
                 {
+                    last = msg;
                     msg = msg -> next;
                 }
                 
                 if (copy_to_user(sender, &(msg->sender), sizeof(pid_t)))
                 {
-                    printk(KERN_INFO "EFUALT @recieve_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                    printk(KERN_INFO "EFUALT @recieve_mail_1 EF_id: %i, proc: %i", EFAULT, current->pid);
                     //unlock the mutex
                     return MAILBOX_ERROR;
                 }
 
                 if (copy_to_user(mesg, msg->data, msg->real_len))
                 {
-                    printk(KERN_INFO "EFUALT @recieve_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                    printk(KERN_INFO "EFUALT @recieve_mail_2 EF_id: %i, proc: %i", EFAULT, current->pid);
                     //unlock the mutex
                     return MAILBOX_ERROR;
                 }
 
                 if (copy_to_user(len, &(msg->real_len), sizeof(int)))
                 {
-                    printk(KERN_INFO "EFUALT @recieve_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                    printk(KERN_INFO "EFUALT @recieve_mail_3 EF_id: %i, proc: %i", EFAULT, current->pid);
                     //unlock the mutex
                     return MAILBOX_ERROR;
                 }
+
+                kmem_cache_free(messages, msg);
+                last -> next = 0;
+                my_mail -> msg_count = my_mail -> msg_count --;
+                return 0;
             }
         }
     }
