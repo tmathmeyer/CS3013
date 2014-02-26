@@ -258,10 +258,12 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
         if (!recipient)
         {
             return MAILBOX_INVALID;
+            spin_unlock(&usps_lock);
         }
         else if (!recipient -> unblocked)
         {
             return MAILBOX_STOPPED;
+            spin_unlock(&usps_lock);
         }
         else if (recipient -> msg_count < MAILBOX_SIZE)
         {
@@ -337,9 +339,11 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
                 kmem_cache_free(messages, msg);
                 last -> next = 0;
                 my_mail -> msg_count = my_mail -> msg_count - 1;
+                spin_unlock(&usps_lock);
                 return 0;
             }
         }
+        spin_unlock(&usps_lock);
     }
     while(block);
 
