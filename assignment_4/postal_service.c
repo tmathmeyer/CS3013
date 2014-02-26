@@ -93,7 +93,6 @@ asmlinkage long  (*old_call1)  (void);
 asmlinkage long  (*old_call2)  (void);
 asmlinkage long  (*old_call3)  (void);
 
-
 /*
  *=============================End Function Prototypes==========================
  *=============================Begin Global Vars================================
@@ -111,6 +110,8 @@ struct kmem_cache* messages;
 struct kmem_cache* hashmap;
 
 int in_operation = 0;
+
+spinlock_t usps_lock;
 
 
 /*
@@ -304,6 +305,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             msg = my_mail -> contents;
             if (msg != 0)
             {
+                last = msg;
                 while(msg -> next != 0)
                 {
                     last = msg;
@@ -332,10 +334,9 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
                 }
 
                 
-                //kmem_cache_free(messages, msg);
-                //last -> next = 0;
-                my_mail -> contents = my_mail -> contents -> next;
-                //my_mail -> msg_count = my_mail -> msg_count --;
+                kmem_cache_free(messages, msg);
+                last -> next = 0;
+                my_mail -> msg_count = my_mail -> msg_count - 1;
                 return 0;
             }
         }
@@ -457,6 +458,9 @@ static int __init module_start(void)
     
     //initialize the mailbox hashmap
     map_init();
+
+    //initialize the spinlock
+    spin_lock_init(&usps_lock);
 
     //swap the functions
     interceptor_start();
