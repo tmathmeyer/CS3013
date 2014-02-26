@@ -49,6 +49,7 @@
 typedef struct message {
         struct message *next;
         char   data[MAX_MSG_SIZE];
+        int    real_len;
         pid_t  sender;
         pid_t  dest;
 } message;
@@ -228,7 +229,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
     {
         return MSG_LENGTH_ERROR;
     }
-    if (recip < 0 || msg < 0 || !(block==BLOCK || BLOCK==NO_BLOCK))
+    if (recip < 0 || msg < 0)
     {
         return MSG_ARG_ERROR;
     }
@@ -257,6 +258,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
             newmsg    -> next      = recipient  -> contents;
             newmsg    -> sender = 0;
             newmsg    -> dest = recip;
+            newmsg    -> real_len = len;
             recipient -> contents  = newmsg;
 
             return 0;
@@ -279,8 +281,55 @@ asmlinkage long receive(pid_t* sender, void* msg, int* len, bool block)
 
 asmlinkage long manage_mail(bool stop, int* vol)
 {
-    printk(KERN_INFO "manage");
-    return 2;
+    mailbox* my_mail = map_get(current->pid);
+    int t = 0;
+    if (stop)
+    {
+        if (my_mail)
+        {
+            if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
+            {
+                printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                return MAILBOX_ERROR;
+            }
+            return 0;
+        }
+        else
+        {
+            if (copy_to_user(vol, &t, sizeof(int)))
+            {
+                printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                return MAILBOX_ERROR;
+            }
+            return 0;
+        }
+    }
+    else if (my_mail)
+    {
+        if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
+        {
+            printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+            return MAILBOX_ERROR;
+        }
+        return 0;
+    }
+    else
+    {
+        my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
+        my_mail -> owner = current->pid;
+        my_mail -> msg_count = 0;
+        my_mail -> contents = 0;
+        my_mail -> unblocked = 1;
+        
+        map_put(current->pid, my_mail);
+
+        if (copy_to_user(vol, &t, sizeof(int)))
+        {
+            printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+            return MAILBOX_ERROR;
+        }
+        return 0;
+    }
 }
 
 
