@@ -18,4 +18,8 @@ int main()
 
 	char* voidstar = "hi there!!";
 	printf("syscall result: %ld\n", syscall(SEND, getpid(), (void*)voidstar, 10, false));
+
+
+	printf("syscall create: %ld\n", syscall(MANG, 0, &msgs));
+	printf("there were %i messages\n", msgs);
 }
