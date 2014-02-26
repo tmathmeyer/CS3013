@@ -16,7 +16,7 @@ int main()
 
 		if (proc && SendMsg(proc, msg, strlen(msg), NO_BLOCK))
 		{
-			printf("error!");
+			printf("error!\n");
 		}
 	}
 	
