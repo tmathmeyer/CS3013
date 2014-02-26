@@ -49,6 +49,7 @@
 typedef struct message {
         struct message *next;
         char   data[MAX_MSG_SIZE];
+        int    length;
         pid_t  sender;
         pid_t  dest;
 } message;
