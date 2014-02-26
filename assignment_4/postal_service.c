@@ -256,7 +256,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
             }
             recipient -> msg_count = recipient  -> msg_count + 1;
             newmsg    -> next      = recipient  -> contents;
-            newmsg    -> sender = 0;
+            newmsg    -> sender = current->pid;
             newmsg    -> dest = recip;
             newmsg    -> real_len = len;
             recipient -> contents  = newmsg;
@@ -271,16 +271,60 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
 	return MAILBOX_FULL;
 }
 
-asmlinkage long receive(pid_t* sender, void* msg, int* len, bool block)
+asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
 {
-    
-    
-    
-    return 2;
+    mailbox* my_mail;
+    message* msg;
+    do
+    {
+        // lock mutex
+        my_mail = map_get(current->pid);
+        if (!my_mail)
+        {
+            return MAILBOX_INVALID;
+        }
+        else
+        {
+            msg = my_mail -> contents;
+            if (msg != 0)
+            {
+                while(msg -> next != 0)
+                {
+                    msg = msg -> next;
+                }
+                
+                if (copy_to_user(sender, &(msg->sender), sizeof(pid_t)))
+                {
+                    printk(KERN_INFO "EFUALT @recieve_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                    //unlock the mutex
+                    return MAILBOX_ERROR;
+                }
+
+                if (copy_to_user(mesg, msg->data, msg->real_len))
+                {
+                    printk(KERN_INFO "EFUALT @recieve_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                    //unlock the mutex
+                    return MAILBOX_ERROR;
+                }
+
+                if (copy_to_user(len, &(msg->real_len), sizeof(int)))
+                {
+                    printk(KERN_INFO "EFUALT @recieve_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                    //unlock the mutex
+                    return MAILBOX_ERROR;
+                }
+            }
+        }
+    }
+    while(block);
+
+    return MAILBOX_EMPTY;
 }
 
 asmlinkage long manage_mail(bool stop, int* vol)
 {
+    //lock the semaphor
+
     mailbox* my_mail = map_get(current->pid);
     int t = 0;
     if (stop)
@@ -290,8 +334,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
             if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
             {
                 printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                //unlock the semaphor
                 return MAILBOX_ERROR;
             }
+            //unlock the semaphor
             return 0;
         }
         else
@@ -299,8 +345,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
             if (copy_to_user(vol, &t, sizeof(int)))
             {
                 printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+                //unlock the semaphor
                 return MAILBOX_ERROR;
             }
+            //unlock the semaphor
             return 0;
         }
     }
@@ -309,8 +357,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+            //unlock the semaphor
             return MAILBOX_ERROR;
         }
+        //unlock the semaphor
         return 0;
     }
     else
@@ -326,8 +376,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
         if (copy_to_user(vol, &t, sizeof(int)))
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+            //unlock the semaphor
             return MAILBOX_ERROR;
         }
+        //unlock the semaphor
         return 0;
     }
 }
