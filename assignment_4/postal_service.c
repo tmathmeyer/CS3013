@@ -331,9 +331,11 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
                     return MAILBOX_ERROR;
                 }
 
-                kmem_cache_free(messages, msg);
-                last -> next = 0;
-                my_mail -> msg_count = my_mail -> msg_count --;
+                
+                //kmem_cache_free(messages, msg);
+                //last -> next = 0;
+                my_mail -> contents = my_mail -> contents -> next;
+                //my_mail -> msg_count = my_mail -> msg_count --;
                 return 0;
             }
         }

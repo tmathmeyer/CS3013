@@ -30,8 +30,8 @@ int main()
 
 
 
-	char* voidstar = "fuck everything and jump off a cliff";
-	printf("syscall result: %ld\n", syscall(SEND, getpid(), (void*)voidstar, 10, false));
+	voidstar = "fuck everything and jump off a cliff";
+	printf("syscall result: %ld\n", syscall(SEND, getpid(), (void*)voidstar, 36, false));
 
 
 
