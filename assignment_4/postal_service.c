@@ -257,13 +257,13 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
         recipient = map_get(recip);
         if (!recipient)
         {
-            return MAILBOX_INVALID;
             spin_unlock(&usps_lock);
+            return MAILBOX_INVALID;
         }
         else if (!recipient -> unblocked)
         {
-            return MAILBOX_STOPPED;
             spin_unlock(&usps_lock);
+            return MAILBOX_STOPPED;
         }
         else if (recipient -> msg_count < MAILBOX_SIZE)
         {
@@ -300,6 +300,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
         my_mail = map_get(current->pid);
         if (!my_mail)
         {
+            spin_unlock(&usps_lock);
             return MAILBOX_INVALID;
         }
         else
