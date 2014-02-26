@@ -21,8 +21,9 @@ int main()
 
 
 	pid_t sender;
-	void* message = malloc(MAX_MSG_SIZE);
+	char* message = (char*)malloc(MAX_MSG_SIZE);
 	int length;
 	printf("syscall create: %ld\n", syscall(RECV, &sender, message, &length));
-	printf("the message was %i chars long", length);
+	printf("the message was %i chars long\n", length);
+	printf("and the message was: %s\n", message);
 }
