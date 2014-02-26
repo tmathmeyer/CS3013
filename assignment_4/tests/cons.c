@@ -2,12 +2,12 @@
 
 #include "mailbox.h"
 #include <stdio.h>
+#include <string.h>
 
 int main()
 {
 	char msg[MAX_MSG_SIZE];
 	int proc = 1;
-	char* msg
 
 	while(proc)
 	{
