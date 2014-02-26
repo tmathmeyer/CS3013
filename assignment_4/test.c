@@ -19,6 +19,10 @@ int main()
 	char* voidstar = "hi there!!";
 	printf("syscall result: %ld\n", syscall(SEND, getpid(), (void*)voidstar, 10, false));
 
+	voidstar = "fuck everything and jump off a cliff";
+	printf("syscall result: %ld\n", syscall(SEND, getpid(), (void*)voidstar, 36, false));
+
+
 
 	pid_t sender;
 	char* message = (char*)malloc(MAX_MSG_SIZE);
@@ -26,13 +30,6 @@ int main()
 	printf("syscall create: %ld\n", syscall(RECV, &sender, message, &length));
 	printf("the message was %i chars long\n", length);
 	printf("and the message was: %s\n", message);
-
-
-
-
-	voidstar = "fuck everything and jump off a cliff";
-	printf("syscall result: %ld\n", syscall(SEND, getpid(), (void*)voidstar, 36, false));
-
 
 
 	printf("syscall create: %ld\n", syscall(RECV, &sender, message, &length));
