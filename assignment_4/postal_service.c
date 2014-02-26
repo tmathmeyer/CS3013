@@ -472,8 +472,11 @@ static int __init module_start(void)
     //initialize the spinlock
     spin_lock_init(&usps_lock);
 
+    spin_lock(&usps_lock);
     //swap the functions
     interceptor_start();
+
+    spin_unlock(&usps_lock);
     
     return 0;
 }
