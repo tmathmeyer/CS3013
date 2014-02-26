@@ -252,7 +252,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
 
     do
     {
-        //lock the mutex
+        spin_lock(&usps_lock);
 
         recipient = map_get(recip);
         if (!recipient)
@@ -280,7 +280,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
             return 0;
         }
 
-        //unlock the mutex
+        spin_unlock(&usps_lock);
     }
     while(block);
 
@@ -294,7 +294,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     message* last = 0;
     do
     {
-        // lock mutex
+        spin_lock(&usps_lock);
         my_mail = map_get(current->pid);
         if (!my_mail)
         {
@@ -315,21 +315,21 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
                 if (copy_to_user(sender, &(msg->sender), sizeof(pid_t)))
                 {
                     printk(KERN_INFO "EFUALT @recieve_mail_1 EF_id: %i, proc: %i", EFAULT, current->pid);
-                    //unlock the mutex
+                    spin_unlock(&usps_lock);
                     return MAILBOX_ERROR;
                 }
 
                 if (copy_to_user(mesg, msg->data, msg->real_len))
                 {
                     printk(KERN_INFO "EFUALT @recieve_mail_2 EF_id: %i, proc: %i", EFAULT, current->pid);
-                    //unlock the mutex
+                    spin_unlock(&usps_lock);
                     return MAILBOX_ERROR;
                 }
 
                 if (copy_to_user(len, &(msg->real_len), sizeof(int)))
                 {
                     printk(KERN_INFO "EFUALT @recieve_mail_3 EF_id: %i, proc: %i", EFAULT, current->pid);
-                    //unlock the mutex
+                    spin_unlock(&usps_lock);
                     return MAILBOX_ERROR;
                 }
 
@@ -348,7 +348,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
 
 asmlinkage long manage_mail(bool stop, int* vol)
 {
-    //lock the semaphor
+    spin_lock(&usps_lock);
 
     mailbox* my_mail = map_get(current->pid);
     int t = 0;
@@ -359,10 +359,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
             if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
             {
                 printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-                //unlock the semaphor
+                spin_unlock(&usps_lock);
                 return MAILBOX_ERROR;
             }
-            //unlock the semaphor
+            spin_unlock(&usps_lock);
             return 0;
         }
         else
@@ -370,10 +370,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
             if (copy_to_user(vol, &t, sizeof(int)))
             {
                 printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-                //unlock the semaphor
+                spin_unlock(&usps_lock);
                 return MAILBOX_ERROR;
             }
-            //unlock the semaphor
+            spin_unlock(&usps_lock);
             return 0;
         }
     }
@@ -382,10 +382,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-            //unlock the semaphor
+            spin_unlock(&usps_lock);
             return MAILBOX_ERROR;
         }
-        //unlock the semaphor
+        spin_unlock(&usps_lock);
         return 0;
     }
     else
@@ -401,10 +401,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
         if (copy_to_user(vol, &t, sizeof(int)))
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-            //unlock the semaphor
+            spin_unlock(&usps_lock);
             return MAILBOX_ERROR;
         }
-        //unlock the semaphor
+        spin_unlock(&usps_lock);
         return 0;
     }
 }
@@ -464,13 +464,13 @@ static int __init module_start(void)
 
     //swap the functions
     interceptor_start();
-    in_operation = 1;
     
     return 0;
 }
 
 static void __exit module_end(void)
 {
+    spin_lock(&usps_lock);
     //swap functions back to saved state
     interceptor_end();
 
@@ -481,8 +481,6 @@ static void __exit module_end(void)
     //some sort of lock thing here
     kmem_cache_destroy(mailboxes);
     kmem_cache_destroy(messages);
-    in_operation = 0;
-    //unlock errythin
 }
 
 
