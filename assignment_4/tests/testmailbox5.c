@@ -17,7 +17,7 @@ int main()
     int childCounter;
     int msgs;
 
-    printf("starting the mailbox!: %i\n", ManageMailbox(0, &msgs));
+    printf("starting the parent mailbox!: %i\n", ManageMailbox(0, &msgs));
     
     // fork enough children so that they can all send a message
     // to the parent and hold a pointer to it's mailbox
@@ -27,6 +27,7 @@ int main()
         
         if(childPID == 0)
         {
+            printf("starting the child mailbox #%i!: %i\n", childCounter, ManageMailbox(0, &msgs));
             pid_t sender;
             void *msg[128];
             int len;
