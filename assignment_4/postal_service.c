@@ -352,10 +352,11 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
 
 asmlinkage long manage_mail(bool stop, int* vol)
 {
-    spin_lock(&usps_lock);
-
     mailbox* my_mail = map_get(current->pid);
     int t = 0;
+    
+    spin_lock(&usps_lock);
+    
     if (stop)
     {
         if (my_mail)
