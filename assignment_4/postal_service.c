@@ -278,7 +278,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
             newmsg    -> dest = recip;
             newmsg    -> real_len = len;
             recipient -> contents  = newmsg;
-
+            spin_unlock(&usps_lock);
             return 0;
         }
 
