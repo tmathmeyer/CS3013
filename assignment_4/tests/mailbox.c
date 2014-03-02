@@ -24,7 +24,7 @@
  */
 int SendMsg(pid_t dest, void *msg, int len, bool block)
 {
-    return syscall(__NR_mailbox_send, dest, msg, len, block);
+    return syscall(SEND, dest, msg, len, block);
 }
 
 /*
@@ -32,7 +32,7 @@ int SendMsg(pid_t dest, void *msg, int len, bool block)
  */
 int RcvMsg(pid_t *sender, void *msg, int *len, bool block)
 {
-    return syscall(__NR_mailbox_rcv, sender, msg, len, block);
+    return syscall(RECV, sender, msg, len, block);
 }
 
 /*
