@@ -87,7 +87,7 @@ int free_all_mail(mailbox* box);
 // interceptor calls
 static int  interceptor_start(void);
 static void interceptor_end  (void);
-int make_mailbox(int* vol, mailbox* my_mail);
+int make_mailbox(mailbox* my_mail);
 
 // the old syscalls
 asmlinkage long  (*old_call1)  (void);
@@ -400,13 +400,19 @@ asmlinkage long manage_mail(bool stop, int* vol)
     }
     else
     {
-        return make_mailbox(vol, my_mail);
+        make_mailbox(my_mail);
+        if (copy_to_user(vol, &t, sizeof(int)))
+        {
+            printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+            spin_unlock(&usps_lock);
+            return MAILBOX_ERROR;
+        }
+        spin_unlock(&usps_lock);
     }
 }
 
-int make_mailbox(int* vol, mailbox* my_mail)
+int make_mailbox(mailbox* my_mail)
 {
-    int t = 0;
     my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
     my_mail -> owner = current->pid;
     my_mail -> msg_count = 0;
@@ -415,13 +421,6 @@ int make_mailbox(int* vol, mailbox* my_mail)
     
     map_put(current->pid, my_mail);
 
-    if (copy_to_user(vol, &t, sizeof(int)))
-    {
-        printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-        spin_unlock(&usps_lock);
-        return MAILBOX_ERROR;
-    }
-    spin_unlock(&usps_lock);
     return 0;
 }
 
