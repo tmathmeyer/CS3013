@@ -401,7 +401,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
     }
     else
     {
-        make_mailbox();
+        make_mailbox(vol, my_mail);
         return 0;
     }
 }
