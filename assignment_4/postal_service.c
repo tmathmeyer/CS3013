@@ -408,6 +408,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
 
 int make_mailbox(int* vol, mailbox* my_mail)
 {
+    int t = 0;
     my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
     my_mail -> owner = current->pid;
     my_mail -> msg_count = 0;
