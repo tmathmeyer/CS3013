@@ -87,6 +87,7 @@ int free_all_mail(mailbox* box);
 // interceptor calls
 static int  interceptor_start(void);
 static void interceptor_end  (void);
+int make_mailbox();
 
 // the old syscalls
 asmlinkage long  (*old_call1)  (void);
@@ -400,27 +401,33 @@ asmlinkage long manage_mail(bool stop, int* vol)
     }
     else
     {
-        my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
-        my_mail -> owner = current->pid;
-        my_mail -> msg_count = 0;
-        my_mail -> contents = 0;
-        my_mail -> unblocked = 1;
-        
-        map_put(current->pid, my_mail);
-
-        if (copy_to_user(vol, &t, sizeof(int)))
-        {
-            printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-            spin_unlock(&usps_lock);
-            return MAILBOX_ERROR;
-        }
-        spin_unlock(&usps_lock);
+        make_mailbox();
         return 0;
     }
 }
 
+int make_mailbox()
+{
+    my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
+    my_mail -> owner = current->pid;
+    my_mail -> msg_count = 0;
+    my_mail -> contents = 0;
+    my_mail -> unblocked = 1;
+    
+    map_put(current->pid, my_mail);
 
- /*
+    if (copy_to_user(vol, &t, sizeof(int)))
+    {
+        printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
+        spin_unlock(&usps_lock);
+        return MAILBOX_ERROR;
+    }
+    spin_unlock(&usps_lock);
+}
+
+
+
+/*
  *=============================End New System Calle=============================
  *=============================Begin Syscall Table functions====================
  */

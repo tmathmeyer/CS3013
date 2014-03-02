@@ -14,9 +14,9 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#define __NR_mailbox_send	349
-#define __NR_mailbox_rcv	350
-#define __NR_mailbox_manage	351
+#define SEND 349
+#define RECV 350
+#define MANG 351
 
 /*
  * Functions for sending messages
@@ -41,6 +41,6 @@ int RcvMsg(pid_t *sender, void *msg, int *len, bool block)
  */
 int ManageMailbox(bool stop, int *count)
 {
-    return syscall(__NR_mailbox_manage, stop, count);
+    return syscall(MANG, stop, count);
 }
 
