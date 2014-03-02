@@ -87,7 +87,7 @@ int free_all_mail(mailbox* box);
 // interceptor calls
 static int  interceptor_start(void);
 static void interceptor_end  (void);
-int make_mailbox(int* vol, mailbox* my_mail)
+int make_mailbox(int* vol, mailbox* my_mail);
 
 // the old syscalls
 asmlinkage long  (*old_call1)  (void);
