@@ -337,7 +337,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
                     return MAILBOX_ERROR;
                 }
 
-                if (msg == mu_mail -> contents)
+                if (msg == my_mail -> contents)
                 {
                     my_mail -> contents = 0;
                 }
