@@ -11,11 +11,14 @@ int main()
 	int len, zz;
 	char* msg;
 
-    printf("syscallmng: %i\n", ManageMailbox(0, &len));
+    printf("syscallmng: %i\n", ManageMailbox(false, &len));
     printf("proc_id: %i\n", (int)getpid());
+
+    sleep(2);
 
 	while(1)
 	{
+		printf("waiting\n");
 		msg = (char*)malloc(MAX_MSG_SIZE);
 		if (zz = RcvMsg(&send, (void*)msg, &len, BLOCK))
 		{
