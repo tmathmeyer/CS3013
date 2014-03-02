@@ -23,12 +23,12 @@ int main()
 	pid_t sender;
 	char* message = (char*)malloc(MAX_MSG_SIZE);
 	int length;
-	printf("syscall create: %ld\n", RcvMsg(&sender, message, &length));
+	printf("syscall create: %ld\n", RcvMsg(&sender, message, &length, false));
 	printf("the message was %i chars long\n", length);
 	printf("and the message was: %s\n", message);
 
 
-	printf("syscall create: %ld\n", RcvMsg(&sender, message, &length));
+	printf("syscall create: %ld\n", RcvMsg(&sender, message, &length, false));
 	printf("the message was %i chars long\n", length);
 	printf("and the message was: %s\n", message);
 }
