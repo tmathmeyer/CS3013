@@ -408,6 +408,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
             return MAILBOX_ERROR;
         }
         spin_unlock(&usps_lock);
+        return 0;
     }
 }
 
