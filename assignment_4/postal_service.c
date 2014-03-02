@@ -401,8 +401,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
     }
     else
     {
-        make_mailbox(vol, my_mail);
-        return 0;
+        return make_mailbox(vol, my_mail);
     }
 }
 
@@ -424,6 +423,7 @@ int make_mailbox(int* vol, mailbox* my_mail)
         return MAILBOX_ERROR;
     }
     spin_unlock(&usps_lock);
+    return 0;
 }
 
 
