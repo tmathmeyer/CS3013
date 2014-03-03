@@ -58,7 +58,7 @@ typedef struct mailbox {
         pid_t owner;
         int msg_count;
         char unblocked;
-        atomic_t deleted;
+        char deleted;
         atomic_t r_w;
         message* contents;
         wait_queue_head_t access;
@@ -260,7 +260,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
         wait_event(recipient -> access, atomic_read(&(recipient -> r_w)) == 0);
         atomic_inc(&(recipient -> r_w));
 
-        if (!atomic_read(&(recipient -> deleted)))
+        if (recipient -> deleted)
         {
             msg = (message*) kmem_cache_alloc(messages, GFP_KERNEL);
             msg -> next = 0;
@@ -298,6 +298,9 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
         }
         else
         {
+            printk("mailbox deleted???!?!?");
+            atomic_dec(&(recipient -> r_w));
+            wake_up(&(recipient -> access));
             return MAILBOX_INVALID;
         }
     }
@@ -398,7 +401,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
         atomic_inc(&(my_mail -> r_w));
         if (stop)
         {
-            atomic_inc(&(my_mail -> deleted));
+            my_mail -> deleted = 1;
         }
 
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
@@ -440,7 +443,7 @@ mailbox* make_mailbox(pid_t pid)
     my_mail -> msg_count  = 0;
     my_mail -> unblocked  = 1;
     my_mail -> contents   = 0;
-    atomic_set(&(my_mail -> deleted), 0);
+    my_mail -> deleted    = 0;
     atomic_set(&(my_mail -> r_w), 0);
     init_waitqueue_head(&(my_mail -> access));
     return my_mail;
