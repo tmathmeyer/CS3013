@@ -51,15 +51,17 @@ typedef struct message {
         char   data[MAX_MSG_SIZE];
         int    real_len;
         pid_t  sender;
-        pid_t  dest;
 } message;
 
 // struct for mailbox (container)
 typedef struct mailbox {
         pid_t owner;
         int msg_count;
-        message* contents;
         char unblocked;
+        atomic_t deleted;
+        atomic_t r_w;
+        message* contents;
+        wait_queue_head_t access;
 } mailbox;
 
 // struct for hashmap
@@ -87,7 +89,7 @@ int free_all_mail(mailbox* box);
 // interceptor calls
 static int  interceptor_start(void);
 static void interceptor_end  (void);
-int make_mailbox(mailbox* my_mail);
+int make_mailbox(pid_t* pid);
 
 // the old syscalls
 asmlinkage long  (*old_call1)  (void);
@@ -239,190 +241,187 @@ int free_all_mail(mailbox* box)
 asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
 {
     mailbox* recipient;
-    struct message* newmsg;
-    int j;
+    message* insert;
+    message* msg;
+    int count;
+    
+    recipient = map_get(recip);
 
-    if (len < 0 || len > MAX_MSG_SIZE)
+    if (!recipient)
     {
-        return MSG_LENGTH_ERROR;
-    }
-    if (recip < 0 || msg < 0)
-    {
-        return MSG_ARG_ERROR;
+        return MAILBOX_INVALID;
     }
 
     do
     {
-        //spin_lock(&usps_lock);
+        wait_event(recipient -> access, atomic_read(recipient -> r_w) == 0);
+        atomic_inc(recipient -> r_w);
 
-        recipient = map_get(recip);
-        if (!recipient)
+        if (!(recipient -> deleted))
         {
-            //spin_unlock(&usps_lock);
+            msg = (message*) kmem_cache_alloc(message, GFP_KERNEL);
+            msg -> next = 0;
+            msg -> sender = current -> pid;
+            msg -> real_len = len;
+            for(count=0; count<len; count++)
+            { //copy the memory
+                *((msg -> data) + count) = *((char *)msg + count);
+            }
+
+            insert = &(recipient -> contents);
+            if (!recipient -> contents)
+            {
+                recipient -> contents = msg;
+            } 
+            else
+            {
+                insert = recipient -> contents;
+                while(insert -> next)
+                {
+                    insert = insert -> next;
+                }
+                insert -> next = msg;
+                atomic_dec(my_mail -> r_w);
+                wake_up(my_mail -> access);
+                return 0;
+            }
+        }
+        else
+        {
             return MAILBOX_INVALID;
         }
-        else if (!recipient -> unblocked)
-        {
-            //spin_unlock(&usps_lock);
-            return MAILBOX_STOPPED;
-        }
-        else if (recipient -> msg_count < MAILBOX_SIZE)
-        {
-            newmsg = (message*)kmem_cache_alloc(messages, GFP_KERNEL);
-            for(j=0; j<len; j++)
-            {
-                *((newmsg -> data) + j) = *((char*)msg + j);
-            }
-            recipient -> msg_count = recipient  -> msg_count + 1;
-            newmsg    -> next      = recipient  -> contents;
-            newmsg    -> sender = current->pid;
-            newmsg    -> dest = recip;
-            newmsg    -> real_len = len;
-            recipient -> contents  = newmsg;
-            //spin_unlock(&usps_lock);
-            return 0;
-        }
-
-        //spin_unlock(&usps_lock);
     }
-    while(block);
+    while(BLOCK);
 
-	return MAILBOX_FULL;
+    atomic_dec(my_mail -> r_w);
+    wake_up(my_mail -> access);
+    return MAILBOX_FULL;
 }
+
+
+
+
 
 asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
 {
     mailbox* my_mail;
     message* msg;
-    message* last = 0;
+
+    my_mail = map_get(current->pid);
+
+    if (!my_mail)
+    {
+        my_mail = make_mailbox(current -> pid);
+        map_put(my_mail);
+    }
+    
     do
     {
-        //spin_lock(&usps_lock);
-        my_mail = map_get(current->pid);
-        if (!my_mail)
+        wait_event(my_mail -> access, atomic_read(my_mail -> r_w) == 0);
+        atomic_inc(my_mail -> r_w);
+
+        msg = my_mail -> contents;
+        
+        if (msg)
         {
-            //spin_unlock(&usps_lock);
-            return MAILBOX_INVALID;
-        }
-        else
-        {
-            msg = my_mail -> contents;
-            if (msg != 0)
+            if (copy_to_user(sender, &(msg->sender), sizeof(pid_t)))
             {
-                last = msg;
-                while(msg -> next != 0)
-                {
-                    last = msg;
-                    msg = msg -> next;
-                }
-                
-                if (copy_to_user(sender, &(msg->sender), sizeof(pid_t)))
-                {
-                    printk(KERN_INFO "EFUALT @recieve_mail_1 EF_id: %i, proc: %i", EFAULT, current->pid);
-                    //spin_unlock(&usps_lock);
-                    return MAILBOX_ERROR;
-                }
-
-                if (copy_to_user(mesg, msg->data, msg->real_len))
-                {
-                    printk(KERN_INFO "EFUALT @recieve_mail_2 EF_id: %i, proc: %i", EFAULT, current->pid);
-                    //spin_unlock(&usps_lock);
-                    return MAILBOX_ERROR;
-                }
-
-                if (copy_to_user(len, &(msg->real_len), sizeof(int)))
-                {
-                    printk(KERN_INFO "EFUALT @recieve_mail_3 EF_id: %i, proc: %i", EFAULT, current->pid);
-                    //spin_unlock(&usps_lock);
-                    return MAILBOX_ERROR;
-                }
-
-                if (msg == my_mail -> contents)
-                {
-                    my_mail -> contents = 0;
-                }
-                kmem_cache_free(messages, msg);
-                last -> next = 0;
-                my_mail -> msg_count = my_mail -> msg_count - 1;
-                //spin_unlock(&usps_lock);
-                return 0;
+                printk(KERN_INFO "EFUALT @recieve_mail_1 EF_id: %i, proc: %i", EFAULT, current->pid);
+                atomic_dec(my_mail -> r_w);
+                wake_up(my_mail -> access);
+                return MAILBOX_ERROR;
             }
+
+            if (copy_to_user(mesg, msg->data, msg->real_len))
+            {
+                printk(KERN_INFO "EFUALT @recieve_mail_2 EF_id: %i, proc: %i", EFAULT, current->pid);
+                atomic_dec(my_mail -> r_w);
+                wake_up(my_mail -> access);
+                return MAILBOX_ERROR;
+            }
+
+            if (copy_to_user(len, &(msg->real_len), sizeof(int)))
+            {
+                printk(KERN_INFO "EFUALT @recieve_mail_3 EF_id: %i, proc: %i", EFAULT, current->pid);
+                atomic_dec(my_mail -> r_w);
+                wake_up(my_mail -> access);
+                return MAILBOX_ERROR;
+            }
+
+            my_mail -> contents = my_mail -> contents -> next;
+            mem_cache_free(messages, msg);
+            atomic_dec(my_mail -> r_w);
+            wake_up(my_mail -> access);
+            return 0;
         }
-        //spin_unlock(&usps_lock);
     }
     while(block);
+    
 
     return MAILBOX_EMPTY;
 }
+
+
+
+
+
 
 asmlinkage long manage_mail(bool stop, int* vol)
 {
     mailbox* my_mail = map_get(current->pid);
     int t = 0;
     
-    //spin_lock(&usps_lock);
-    
-    if (stop)
+    wait_event(recipient -> access, atomic_read(recipient -> r_w) == 0);
+    atomic_inc(recipient -> r_w);
+
+    if (my_mail)
     {
-        if (my_mail)
+        if (stop)
         {
-            if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
-            {
-                printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-                //spin_unlock(&usps_lock);
-                return MAILBOX_ERROR;
-            }
-            //spin_unlock(&usps_lock);
-            return 0;
+            atomic_incr(my_mail -> deleted);
         }
-        else
-        {
-            if (copy_to_user(vol, &t, sizeof(int)))
-            {
-                printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-                //spin_unlock(&usps_lock);
-                return MAILBOX_ERROR;
-            }
-            //spin_unlock(&usps_lock);
-            return 0;
-        }
-    }
-    else if (my_mail)
-    {
+
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-            //spin_unlock(&usps_lock);
+            atomic_dec(my_mail -> r_w);
+            wake_up(my_mail -> access);
             return MAILBOX_ERROR;
         }
-        //spin_unlock(&usps_lock);
-        return 0;
     }
-    else
+    else if (!stop)
     {
-        make_mailbox(my_mail);
-        if (copy_to_user(vol, &t, sizeof(int)))
+        my_mail = make_mailbox(current -> pid)
+        map_put(current -> pid, my_mail);
+
+        if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-            //spin_unlock(&usps_lock);
+            atomic_dec(my_mail -> r_w);
+            wake_up(my_mail -> access);
             return MAILBOX_ERROR;
         }
-        //spin_unlock(&usps_lock);
-        return 0;
     }
+
+    atomic_dec(my_mail -> r_w);
+    wake_up(my_mail -> access);
 }
 
-int make_mailbox(mailbox* my_mail)
-{
-    my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
-    my_mail -> owner = current->pid;
-    my_mail -> msg_count = 0;
-    my_mail -> contents = 0;
-    my_mail -> unblocked = 1;
-    
-    map_put(current->pid, my_mail);
 
-    return 0;
+
+
+
+int make_mailbox(pid_t* pid)
+{
+    mailbox* my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
+    my_mail -> owner      = pid;
+    my_mail -> msg_count  = 0;
+    my_mail -> unblocked  = 1;
+    my_mail -> contents   = 0;
+    atomic_set(my_mail -> deleted, 0);
+    atomic_set(my_mail -> r_w,     0);
+    init_waitqueue_head(my_mail -> access);
+    return my_mail;
 }
 
 
