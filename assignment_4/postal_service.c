@@ -249,15 +249,15 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 
     if (!recipient)
     {
-        task_struct* ts = find_task_by_vpid(recip);
+        struct task_struct* ts = find_task_by_vpid(recip);
         if (ts -> pid != recip || ts -> mm == 0)
         {
             return MAILBOX_INVALID;
         }
         else
         {
-            recipient = make_mailbox(current -> pid);
-            map_put(current -> pid, recipient);
+            recipient = make_mailbox(recip);
+            map_put(recip, recipient);
         }
     }
 
