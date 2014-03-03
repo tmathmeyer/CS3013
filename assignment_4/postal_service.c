@@ -310,7 +310,11 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 }
 
 
-
+int recv_enter(mailbox* m)
+{
+    return (atomic_read(&(my_mail->r_w))==0 && my_mail -> msg_count != 0) ||
+            (m -> deleted);
+}
 
 
 asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
@@ -326,7 +330,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
         map_put(current -> pid, my_mail);
     }
 
-    if (my_mail -> msg_count == 0 && block)
+    if (my_mail -> msg_count == 0 && !block)
     {
         return MAILBOX_EMPTY;
     }
@@ -336,7 +340,13 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
         printk("RECV blocking? %s\n", block?"yes":"no");
         printk("RECV Q.length=%i\n", atomic_read(&(my_mail -> r_w)));
         printk("     M.length=%i\n", my_mail -> msg_count);
-        wait_event(my_mail -> access,  atomic_read(&(my_mail->r_w))==0);
+        // entry condition:
+        //     nobody in mail
+        //     AND
+        //     more than 0 entries
+        //     OR
+        //     mailbox deleted
+        wait_event(my_mail -> access, recv_enter(my_mail) );
         atomic_inc(&(my_mail -> r_w));
 
         msg = my_mail -> contents;
@@ -383,7 +393,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
         }
         else
         {
-            printk("no messages. might block now! setting count to 0 for safty\n");
+            printk("no messages!\n");
             my_mail->msg_count = 0;
         }
         atomic_dec(&(my_mail -> r_w));
