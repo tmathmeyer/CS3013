@@ -327,12 +327,18 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
         my_mail = make_mailbox(current -> pid);
         map_put(current -> pid, my_mail);
     }
+
+    if (my_mail -> msg_count == 0 && block)
+    {
+        return MAILBOX_EMPTY;
+    }
     
     do
     {
+        printk("are we blocking? %s\n", block?"yes","no");
         printk("blocking on queue of length: %i\n", atomic_read(&(my_mail -> r_w)));
         printk("\tand mb size of: %i\n", my_mail -> msg_count);
-        wait_event(my_mail -> access, ( (atomic_read(&(my_mail->r_w))==0) && (my_mail->msg_count > 0)));
+        wait_event(my_mail -> access,  atomic_read(&(my_mail->r_w))==0);
         atomic_inc(&(my_mail -> r_w));
 
         msg = my_mail -> contents;
