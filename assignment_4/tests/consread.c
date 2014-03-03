@@ -20,9 +20,10 @@ int main()
 	{
 		printf("waiting\n");
 		msg = (char*)malloc(MAX_MSG_SIZE);
-		if (zz = RcvMsg(&send, (void*)msg, &len, BLOCK))
+		if (zz = RcvMsg(&send, (void*)msg, &len, NO_BLOCK))
 		{
 			printf("error wtf! %i\n", zz);
+			sleep(2);
 		}
 		else
 		{
