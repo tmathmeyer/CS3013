@@ -333,6 +333,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
         atomic_inc(&(my_mail -> r_w));
 
         msg = my_mail -> contents;
+        my_mail -> msg_count = my_mail -> msg_count + 1;
         
         if (msg)
         {
@@ -340,6 +341,8 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_1 EF_id: %i, proc: %i", EFAULT, current->pid);
                 atomic_dec(&(my_mail -> r_w));
+                my_mail -> contents = my_mail -> contents -> next;
+                kmem_cache_free(messages, msg);
                 wake_up(&(my_mail -> access));
                 return MAILBOX_ERROR;
             }
@@ -348,6 +351,8 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_2 EF_id: %i, proc: %i", EFAULT, current->pid);
                 atomic_dec(&(my_mail -> r_w));
+                my_mail -> contents = my_mail -> contents -> next;
+                kmem_cache_free(messages, msg);
                 wake_up(&(my_mail -> access));
                 return MAILBOX_ERROR;
             }
@@ -356,6 +361,8 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_3 EF_id: %i, proc: %i", EFAULT, current->pid);
                 atomic_dec(&(my_mail -> r_w));
+                my_mail -> contents = my_mail -> contents -> next;
+                kmem_cache_free(messages, msg);
                 wake_up(&(my_mail -> access));
                 return MAILBOX_ERROR;
             }
