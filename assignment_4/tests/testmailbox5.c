@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#define CHILD_NUM 1
+#define CHILD_NUM 150
 
 int main()
 {
