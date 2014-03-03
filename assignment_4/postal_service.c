@@ -326,7 +326,8 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     do
     {
         printk("blocking on queue of length: %i\n", atomic_read(&(my_mail -> r_w)));
-        wait_event(my_mail -> access, ( atomic_read(&(my_mail->r_w))==0 && my_mail->msg_count > 0));
+        printk("\tand mb size of: %i\n", my_mail -> msg_count);
+        wait_event(my_mail -> access, ( (atomic_read(&(my_mail->r_w))==0) && (my_mail->msg_count > 0)));
         atomic_inc(&(my_mail -> r_w));
 
         msg = my_mail -> contents;
@@ -360,6 +361,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             my_mail -> contents = my_mail -> contents -> next;
             kmem_cache_free(messages, msg);
             atomic_dec(&(my_mail -> r_w));
+            printk("about to free with Q length: %i\n", atomic_read(&(my_mail -> r_w)));
             wake_up(&(my_mail -> access));
             return 0;
         }
