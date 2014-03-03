@@ -16,16 +16,20 @@ int main()
 
     sleep(2);
 
-	printf("waiting\n");
-	msg = (char*)malloc(MAX_MSG_SIZE);
-	if (zz = RcvMsg(&send, (void*)msg, &len, NO_BLOCK))
+	do
 	{
-		printf("error wtf! %i\n", zz);
-		sleep(2);
+		printf("waiting\n");
+		msg = (char*)malloc(MAX_MSG_SIZE);
+		if (zz = RcvMsg(&send, (void*)msg, &len, NO_BLOCK))
+		{
+			printf("error wtf! %i\n", zz);
+			sleep(2);
+		}
+		else
+		{
+			printf("process id:%i, sent:\n\t%s\n", (int)send, msg);
+		}
+		free(msg);
 	}
-	else
-	{
-		printf("process id:%i, sent:\n\t%s\n", (int)send, msg);
-	}
-	free(msg);
+	while(1 == 0);
 }
