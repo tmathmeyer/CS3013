@@ -273,6 +273,9 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
             if (!recipient -> contents)
             {
                 recipient -> contents = msg;
+                atomic_dec(&(recipient -> r_w));
+                wake_up(&(recipient -> access));
+                return 0;
             } 
             else
             {
