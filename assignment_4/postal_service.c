@@ -391,6 +391,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
     else if (!stop)
     {
         my_mail = make_mailbox(current -> pid);
+        atomic_inc(&(my_mail -> r_w));
         map_put(current -> pid, my_mail);
 
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
