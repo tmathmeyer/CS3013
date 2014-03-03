@@ -238,7 +238,7 @@ int free_all_mail(mailbox* box)
  */
 
 
-asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
+asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 {
     mailbox* recipient;
     message* insert;
@@ -254,7 +254,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
 
     do
     {
-        wait_event(recipient -> access, atomic_read(recipient -> r_w) == 0);
+        wait_event(recipient -> access, atomic_read(&(recipient -> r_w)) == 0);
         atomic_inc(recipient -> r_w);
 
         if (!(recipient -> deleted))
@@ -265,7 +265,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
             msg -> real_len = len;
             for(count=0; count<len; count++)
             { //copy the memory
-                *((msg -> data) + count) = *((char *)msg + count);
+                *((msg -> data) + count) = *((char *)mesg + count);
             }
 
             insert = &(recipient -> contents);
