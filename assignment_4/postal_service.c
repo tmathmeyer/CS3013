@@ -377,7 +377,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
     {
         if (stop)
         {
-            atomic_incr(&(my_mail -> deleted));
+            atomic_inc(&(my_mail -> deleted));
         }
 
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
@@ -417,8 +417,8 @@ mailbox* make_mailbox(pid_t pid)
     my_mail -> msg_count  = 0;
     my_mail -> unblocked  = 1;
     my_mail -> contents   = 0;
-    atomic_set(&(my_mail -> deleted, 0));
-    atomic_set(&(my_mail -> r_w,     0));
+    atomic_set(&(my_mail -> deleted), 0);
+    atomic_set(&(my_mail -> r_w), 0);
     init_waitqueue_head(my_mail -> access);
     return my_mail;
 }
