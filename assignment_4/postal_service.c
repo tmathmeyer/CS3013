@@ -89,7 +89,7 @@ int free_all_mail(mailbox* box);
 // interceptor calls
 static int  interceptor_start(void);
 static void interceptor_end  (void);
-mailbox* make_mailbox(pid_t* pid);
+mailbox* make_mailbox(pid_t pid);
 
 // the old syscalls
 asmlinkage long  (*old_call1)  (void);
@@ -282,7 +282,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
                 }
                 insert -> next = msg;
                 atomic_dec(&(recipient -> r_w));
-                wake_up(recipient -> access);
+                wake_up(&(recipient -> access));
                 return 0;
             }
         }
@@ -293,8 +293,8 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
     }
     while(BLOCK);
 
-    atomic_dec(my_mail -> r_w);
-    wake_up(my_mail -> access);
+    atomic_dec(&(recipient -> r_w));
+    wake_up(&(recipient -> access));
     return MAILBOX_FULL;
 }
 
@@ -327,31 +327,31 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             if (copy_to_user(sender, &(msg->sender), sizeof(pid_t)))
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_1 EF_id: %i, proc: %i", EFAULT, current->pid);
-                atomic_dec(my_mail -> r_w);
-                wake_up(my_mail -> access);
+                atomic_dec(&(my_mail -> r_w));
+                wake_up(&(my_mail -> access));
                 return MAILBOX_ERROR;
             }
 
             if (copy_to_user(mesg, msg->data, msg->real_len))
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_2 EF_id: %i, proc: %i", EFAULT, current->pid);
-                atomic_dec(my_mail -> r_w);
-                wake_up(my_mail -> access);
+                atomic_dec(&(my_mail -> r_w));
+                wake_up(&(my_mail -> access));
                 return MAILBOX_ERROR;
             }
 
             if (copy_to_user(len, &(msg->real_len), sizeof(int)))
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_3 EF_id: %i, proc: %i", EFAULT, current->pid);
-                atomic_dec(my_mail -> r_w);
-                wake_up(my_mail -> access);
+                atomic_dec(&(my_mail -> r_w));
+                wake_up(&(my_mail -> access));
                 return MAILBOX_ERROR;
             }
 
             my_mail -> contents = my_mail -> contents -> next;
             mem_cache_free(messages, msg);
-            atomic_dec(my_mail -> r_w);
-            wake_up(my_mail -> access);
+            atomic_dec(&(my_mail -> r_w));
+            wake_up(&(my_mail -> access));
             return 0;
         }
     }
@@ -383,8 +383,8 @@ asmlinkage long manage_mail(bool stop, int* vol)
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-            atomic_dec(my_mail -> r_w);
-            wake_up(my_mail -> access);
+            atomic_dec(&(my_mail -> r_w));
+            wake_up(&(my_mail -> access));
             return MAILBOX_ERROR;
         }
     }
@@ -396,21 +396,21 @@ asmlinkage long manage_mail(bool stop, int* vol)
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
-            atomic_dec(my_mail -> r_w);
-            wake_up(my_mail -> access);
+            atomic_dec(&(my_mail -> r_w));
+            wake_up(&(my_mail -> access));
             return MAILBOX_ERROR;
         }
     }
 
-    atomic_dec(my_mail -> r_w);
-    wake_up(my_mail -> access);
+    atomic_dec(&(my_mail -> r_w));
+    wake_up(&(my_mail -> access));
 }
 
 
 
 
 
-mailbox* make_mailbox(pid_t* pid)
+mailbox* make_mailbox(pid_t pid)
 {
     mailbox* my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
     my_mail -> owner      = pid;
