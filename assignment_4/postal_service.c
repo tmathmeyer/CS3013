@@ -321,7 +321,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     
     do
     {
-        wait_event(my_mail -> access, atomic_read(&(my_mail -> r_w)) == 0);
+        wait_event(my_mail -> access, ( atomic_read(&(my_mail->r_w))==0 && my_mail->msg_count > 0));
         atomic_inc(&(my_mail -> r_w));
 
         msg = my_mail -> contents;
