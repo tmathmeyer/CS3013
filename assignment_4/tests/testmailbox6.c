@@ -44,7 +44,7 @@ int main()
     {
         int childPID = fork();
         
-        if(childPID == 0
+        if(childPID == 0)
         {
             pid_t sender;
             void *msg[128];
