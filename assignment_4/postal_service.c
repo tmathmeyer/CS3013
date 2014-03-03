@@ -325,7 +325,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     
     do
     {
-        printk("blocking on queue of length: %i\n", atomic_read(&(recipient -> r_w)));
+        printk("blocking on queue of length: %i\n", atomic_read(&(my_mail -> r_w)));
         wait_event(my_mail -> access, ( atomic_read(&(my_mail->r_w))==0 && my_mail->msg_count > 0));
         atomic_inc(&(my_mail -> r_w));
 
