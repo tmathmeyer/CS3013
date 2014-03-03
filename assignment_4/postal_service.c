@@ -358,6 +358,8 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             wake_up(&(my_mail -> access));
             return 0;
         }
+        atomic_dec(&(my_mail -> r_w));
+        wake_up(&(my_mail -> access));
     }
     while(block);
     
