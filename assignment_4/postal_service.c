@@ -369,10 +369,9 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
 asmlinkage long manage_mail(bool stop, int* vol)
 {
     mailbox* my_mail = map_get(current->pid);
-    int t = 0;
     
-    wait_event(recipient -> access, atomic_read(recipient -> r_w) == 0);
-    atomic_inc(recipient -> r_w);
+    wait_event(my_mail -> access, atomic_read(my_mail -> r_w) == 0);
+    atomic_inc(my_mail -> r_w);
 
     if (my_mail)
     {
