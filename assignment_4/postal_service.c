@@ -349,7 +349,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             }
 
             my_mail -> contents = my_mail -> contents -> next;
-            mem_cache_free(messages, msg);
+            kmem_cache_free(messages, msg);
             atomic_dec(&(my_mail -> r_w));
             wake_up(&(my_mail -> access));
             return 0;
@@ -370,14 +370,14 @@ asmlinkage long manage_mail(bool stop, int* vol)
 {
     mailbox* my_mail = map_get(current->pid);
     
-    wait_event(my_mail -> access, atomic_read(my_mail -> r_w) == 0);
-    atomic_inc(my_mail -> r_w);
+    wait_event(my_mail -> access, atomic_read(&(my_mail -> r_w)) == 0);
+    atomic_inc(&(my_mail -> r_w));
 
     if (my_mail)
     {
         if (stop)
         {
-            atomic_incr(my_mail -> deleted);
+            atomic_incr(&(my_mail -> deleted));
         }
 
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
@@ -390,7 +390,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
     }
     else if (!stop)
     {
-        my_mail = make_mailbox(current -> pid)
+        my_mail = make_mailbox(current -> pid);
         map_put(current -> pid, my_mail);
 
         if (copy_to_user(vol, &(my_mail->msg_count), sizeof(int)))
@@ -417,8 +417,8 @@ mailbox* make_mailbox(pid_t pid)
     my_mail -> msg_count  = 0;
     my_mail -> unblocked  = 1;
     my_mail -> contents   = 0;
-    atomic_set(my_mail -> deleted, 0);
-    atomic_set(my_mail -> r_w,     0);
+    atomic_set(&(my_mail -> deleted, 0));
+    atomic_set(&(my_mail -> r_w,     0));
     init_waitqueue_head(my_mail -> access);
     return my_mail;
 }
