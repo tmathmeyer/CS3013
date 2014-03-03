@@ -282,7 +282,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
                 }
                 insert -> next = msg;
                 atomic_dec(my_mail -> r_w);
-                wake_up(&(my_mail -> access));
+                wake_up(my_mail -> access);
                 return 0;
             }
         }
@@ -294,7 +294,7 @@ asmlinkage long send_message(pid_t recip, void* msg, int len, bool block)
     while(BLOCK);
 
     atomic_dec(my_mail -> r_w);
-    wake_up(&(my_mail -> access));
+    wake_up(my_mail -> access);
     return MAILBOX_FULL;
 }
 
@@ -317,7 +317,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     
     do
     {
-        wait_event(&(my_mail -> access), atomic_read(my_mail -> r_w) == 0);
+        wait_event(my_mail -> access, atomic_read(my_mail -> r_w) == 0);
         atomic_inc(my_mail -> r_w);
 
         msg = my_mail -> contents;
@@ -328,7 +328,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_1 EF_id: %i, proc: %i", EFAULT, current->pid);
                 atomic_dec(my_mail -> r_w);
-                wake_up(&(my_mail -> access));
+                wake_up(my_mail -> access);
                 return MAILBOX_ERROR;
             }
 
@@ -336,7 +336,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_2 EF_id: %i, proc: %i", EFAULT, current->pid);
                 atomic_dec(my_mail -> r_w);
-                wake_up(&(my_mail -> access));
+                wake_up(my_mail -> access);
                 return MAILBOX_ERROR;
             }
 
@@ -344,14 +344,14 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             {
                 printk(KERN_INFO "EFUALT @recieve_mail_3 EF_id: %i, proc: %i", EFAULT, current->pid);
                 atomic_dec(my_mail -> r_w);
-                wake_up(&(my_mail -> access));
+                wake_up(my_mail -> access);
                 return MAILBOX_ERROR;
             }
 
             my_mail -> contents = my_mail -> contents -> next;
             mem_cache_free(messages, msg);
             atomic_dec(my_mail -> r_w);
-            wake_up(&(my_mail -> access));
+            wake_up(my_mail -> access);
             return 0;
         }
     }
@@ -370,7 +370,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
 {
     mailbox* my_mail = map_get(current->pid);
     
-    wait_event(&(my_mail -> access), atomic_read(my_mail -> r_w) == 0);
+    wait_event(my_mail -> access, atomic_read(my_mail -> r_w) == 0);
     atomic_inc(my_mail -> r_w);
 
     if (my_mail)
@@ -384,7 +384,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
             atomic_dec(my_mail -> r_w);
-            wake_up(&(my_mail -> access));
+            wake_up(my_mail -> access);
             return MAILBOX_ERROR;
         }
     }
@@ -397,13 +397,13 @@ asmlinkage long manage_mail(bool stop, int* vol)
         {
             printk(KERN_INFO "EFAULT @manage_mail EF_id: %i, proc: %i", EFAULT, current->pid);
             atomic_dec(my_mail -> r_w);
-            wake_up(&(my_mail -> access));
+            wake_up(my_mail -> access);
             return MAILBOX_ERROR;
         }
     }
 
     atomic_dec(my_mail -> r_w);
-    wake_up(&(my_mail -> access));
+    wake_up(my_mail -> access);
 }
 
 
@@ -419,7 +419,7 @@ int make_mailbox(pid_t* pid)
     my_mail -> contents   = 0;
     atomic_set(my_mail -> deleted, 0);
     atomic_set(my_mail -> r_w,     0);
-    init_waitqueue_head(&(my_mail -> access));
+    init_waitqueue_head(my_mail -> access);
     return my_mail;
 }
 
