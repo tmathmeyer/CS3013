@@ -377,6 +377,11 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
             wake_up(&(my_mail -> access));
             return 0;
         }
+        else
+        {
+            printk("no messages. might block now! setting count to 0 for safty");
+            my_mail->msg_count = 0;
+        }
         atomic_dec(&(my_mail -> r_w));
         wake_up(&(my_mail -> access));
     }
