@@ -89,7 +89,7 @@ int free_all_mail(mailbox* box);
 // interceptor calls
 static int  interceptor_start(void);
 static void interceptor_end  (void);
-int make_mailbox(pid_t* pid);
+mailbox* make_mailbox(pid_t* pid);
 
 // the old syscalls
 asmlinkage long  (*old_call1)  (void);
@@ -268,7 +268,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
                 *((msg -> data) + count) = *((char *)mesg + count);
             }
 
-            insert = &(recipient -> contents);
+            insert = recipient -> contents;
             if (!recipient -> contents)
             {
                 recipient -> contents = msg;
@@ -281,8 +281,8 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
                     insert = insert -> next;
                 }
                 insert -> next = msg;
-                atomic_dec(my_mail -> r_w);
-                wake_up(my_mail -> access);
+                atomic_dec(&(recipient -> r_w));
+                wake_up(recipient -> access);
                 return 0;
             }
         }
@@ -312,13 +312,13 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     if (!my_mail)
     {
         my_mail = make_mailbox(current -> pid);
-        map_put(my_mail);
+        map_put(current -> pid, my_mail);
     }
     
     do
     {
-        wait_event(my_mail -> access, atomic_read(my_mail -> r_w) == 0);
-        atomic_inc(my_mail -> r_w);
+        wait_event(my_mail -> access, atomic_read(&(my_mail -> r_w)) == 0);
+        atomic_inc(&(my_mail -> r_w));
 
         msg = my_mail -> contents;
         
@@ -410,7 +410,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
 
 
 
-int make_mailbox(pid_t* pid)
+mailbox* make_mailbox(pid_t* pid)
 {
     mailbox* my_mail = kmem_cache_alloc(mailboxes, GFP_KERNEL);
     my_mail -> owner      = pid;
