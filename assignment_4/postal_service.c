@@ -370,11 +370,10 @@ asmlinkage long manage_mail(bool stop, int* vol)
 {
     mailbox* my_mail = map_get(current->pid);
     
-    wait_event(my_mail -> access, atomic_read(&(my_mail -> r_w)) == 0);
-    atomic_inc(&(my_mail -> r_w));
-
     if (my_mail)
     {
+        wait_event(my_mail -> access, atomic_read(&(my_mail -> r_w)) == 0);
+        atomic_inc(&(my_mail -> r_w));
         if (stop)
         {
             atomic_inc(&(my_mail -> deleted));
