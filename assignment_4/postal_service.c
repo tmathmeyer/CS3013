@@ -35,6 +35,7 @@
 #include <linux/cred.h>
 #include <linux/types.h>
 #include <linux/slab.h>
+ #include <linux/sched.h>
 #include <stdbool.h>
 #include "mailbox.h"
 
