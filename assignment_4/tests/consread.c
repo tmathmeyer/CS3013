@@ -10,6 +10,8 @@ int main()
 	pid_t send;
 	int len, zz;
 	char* msg;
+	
+    printf("proc_id: %i\n", (int)getpid());
 
 	do
 	{
