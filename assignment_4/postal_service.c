@@ -273,7 +273,9 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
             if (!recipient -> contents)
             {
                 recipient -> contents = msg;
+                recipient -> msg_count = recipient -> msg_count + 1;
                 atomic_dec(&(recipient -> r_w));
+                printk("the current value of the queue (before unlock): %i\n", atomic_read(&(recipient -> r_w)));
                 wake_up(&(recipient -> access));
                 return 0;
             } 
@@ -287,6 +289,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
                 insert -> next = msg;
                 recipient -> msg_count = recipient -> msg_count + 1;
                 atomic_dec(&(recipient -> r_w));
+                printk("the current value of the queue (before unlock): %i\n", atomic_read(&(recipient -> r_w)));
                 wake_up(&(recipient -> access));
                 return 0;
             }
@@ -322,6 +325,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     
     do
     {
+        printk("blocking on queue of length: %i\n", atomic_read(&(recipient -> r_w)));
         wait_event(my_mail -> access, ( atomic_read(&(my_mail->r_w))==0 && my_mail->msg_count > 0));
         atomic_inc(&(my_mail -> r_w));
 
@@ -537,7 +541,7 @@ static int interceptor_start(void)
     //}
 	enable_page_protection();
 
-	printk(KERN_INFO "Postal Service has set up shop!");
+	printk(KERN_INFO "Postal Service has set up shop!\n");
 
 	return 0;
 }
