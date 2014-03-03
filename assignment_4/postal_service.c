@@ -35,7 +35,7 @@
 #include <linux/cred.h>
 #include <linux/types.h>
 #include <linux/slab.h>
- #include <linux/sched.h>
+#include <linux/sched.h>
 #include <stdbool.h>
 #include "mailbox.h"
 
@@ -250,7 +250,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 
     if (!recipient)
     {
-        struct task_struct* ts = find_task_by_vpid(recip);
+        struct task_struct* ts = find_vpid(recip);
         if (ts -> pid != recip || ts -> mm == 0)
         {
             return MAILBOX_INVALID;
