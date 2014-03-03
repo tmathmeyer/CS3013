@@ -245,7 +245,9 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
     message* msg;
     int count;
     
+    printk("before the mapget\n");
     recipient = map_get(recip);
+    printk("after the mapget\n");
 
     if (!recipient)
     {
