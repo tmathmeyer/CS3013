@@ -11,11 +11,6 @@ int main()
 	int len, zz;
 	char* msg;
 
-    printf("syscallmng: %i\n", ManageMailbox(false, &len));
-    printf("proc_id: %i\n", (int)getpid());
-
-    sleep(2);
-
 	do
 	{
 		printf("waiting\n");
