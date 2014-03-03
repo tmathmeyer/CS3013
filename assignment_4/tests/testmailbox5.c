@@ -41,6 +41,7 @@ int main()
         }
         else
         {
+            sleep(2);
             char mesg[] = "I am your father";
             if (SendMsg(childPID, mesg, 17, false)){
                 printf("Send failed\n");
