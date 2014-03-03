@@ -260,7 +260,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
         wait_event(recipient -> access, atomic_read(&(recipient -> r_w)) == 0);
         atomic_inc(&(recipient -> r_w));
 
-        if (recipient -> deleted)
+        if (!(recipient -> deleted))
         {
             msg = (message*) kmem_cache_alloc(messages, GFP_KERNEL);
             msg -> next = 0;
