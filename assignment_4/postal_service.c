@@ -404,6 +404,7 @@ asmlinkage long manage_mail(bool stop, int* vol)
 
     atomic_dec(&(my_mail -> r_w));
     wake_up(&(my_mail -> access));
+    return 0;
 }
 
 
@@ -419,7 +420,7 @@ mailbox* make_mailbox(pid_t pid)
     my_mail -> contents   = 0;
     atomic_set(&(my_mail -> deleted), 0);
     atomic_set(&(my_mail -> r_w), 0);
-    init_waitqueue_head(my_mail -> access);
+    init_waitqueue_head(&(my_mail -> access));
     return my_mail;
 }
 
