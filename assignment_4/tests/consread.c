@@ -16,7 +16,7 @@ int main()
 
     sleep(2);
 
-	while(1)
+	do
 	{
 		printf("waiting\n");
 		msg = (char*)malloc(MAX_MSG_SIZE);
@@ -31,5 +31,5 @@ int main()
 		}
 		free(msg);
 	}
-	
+	while(0);
 }
