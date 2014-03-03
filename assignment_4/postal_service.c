@@ -312,7 +312,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 
 int recv_enter(mailbox* m)
 {
-    return (atomic_read(&(my_mail->r_w))==0 && my_mail -> msg_count != 0) ||
+    return (atomic_read(&(m->r_w))==0 && m -> msg_count != 0) ||
             (m -> deleted);
 }
 
