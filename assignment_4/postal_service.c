@@ -259,7 +259,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 
         if (!atomic_read(&(recipient -> deleted)))
         {
-            msg = (message*) kmem_cache_alloc(message, GFP_KERNEL);
+            msg = (message*) kmem_cache_alloc(messages, GFP_KERNEL);
             msg -> next = 0;
             msg -> sender = current -> pid;
             msg -> real_len = len;
