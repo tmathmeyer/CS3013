@@ -335,7 +335,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     
     do
     {
-        printk("are we blocking? %s\n", block?"yes","no");
+        printk("are we blocking? %s\n", block?"yes":"no");
         printk("blocking on queue of length: %i\n", atomic_read(&(my_mail -> r_w)));
         printk("\tand mb size of: %i\n", my_mail -> msg_count);
         wait_event(my_mail -> access,  atomic_read(&(my_mail->r_w))==0);
