@@ -33,9 +33,12 @@ int main()
 
             if(len = SendMsg(sender, myMesg, 16, true))
             {
-                printf("Child send failed with error: %i\n", len);
+                printf("Child #%i failed with error: %i\n",childCounter, len);
+            } 
+            else
+            {
+                printf("child #%i sent successfully\n", childCounter);
             }
-            
             return 0;
         }
         else
@@ -53,6 +56,13 @@ int main()
     // to its mailbox
     // before trying to kill its own process.
     usleep(100000);
+
+    int count;
+    if (msgs = ManageMailbox(false, &count))
+    {
+        printf("oops: %i\n", msgs);
+    }
+    printf("there were %i messages waiting\n", count);
     
     return 0;
 }
