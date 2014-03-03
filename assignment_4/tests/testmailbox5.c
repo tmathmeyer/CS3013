@@ -31,10 +31,9 @@ int main()
             printf("PMessage: %s\n", (char *)msg);
             char myMesg[] = "I am your child";
 
-
-            if(SendMsg(sender, myMesg, 16, true))
+            if(len = SendMsg(sender, myMesg, 16, true))
             {
-                printf("Child send failed.\n");
+                printf("Child send failed with error: %i\n", len);
             }
             
             return 0;
