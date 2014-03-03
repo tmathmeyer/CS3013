@@ -285,6 +285,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
                     insert = insert -> next;
                 }
                 insert -> next = msg;
+                recipient -> msg_count = recipient -> msg_count + 1;
                 atomic_dec(&(recipient -> r_w));
                 wake_up(&(recipient -> access));
                 return 0;
