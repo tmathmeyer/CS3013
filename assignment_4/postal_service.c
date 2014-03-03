@@ -245,9 +245,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
     message* msg;
     int count;
     
-    printk("before the mapget\n");
     recipient = map_get(recip);
-    printk("after the mapget\n");
 
     if (!recipient)
     {
@@ -256,7 +254,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 
     do
     {
-        printk("the current value of the queue: %i\n", atomic_read(&(recipient -> r_w)));
+        printk("SENDING Q.length=%i\n", atomic_read(&(recipient -> r_w)));
         wait_event(recipient -> access, atomic_read(&(recipient -> r_w)) == 0);
         atomic_inc(&(recipient -> r_w));
 
@@ -335,9 +333,9 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     
     do
     {
-        printk("are we blocking? %s\n", block?"yes":"no");
-        printk("blocking on queue of length: %i\n", atomic_read(&(my_mail -> r_w)));
-        printk("\tand mb size of: %i\n", my_mail -> msg_count);
+        printk("RECV blocking? %s\n", block?"yes":"no");
+        printk("RECV Q.length=%i\n", atomic_read(&(my_mail -> r_w)));
+        printk("     M.length=%i\n", my_mail -> msg_count);
         wait_event(my_mail -> access,  atomic_read(&(my_mail->r_w))==0);
         atomic_inc(&(my_mail -> r_w));
 
@@ -385,7 +383,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
         }
         else
         {
-            printk("no messages. might block now! setting count to 0 for safty");
+            printk("no messages. might block now! setting count to 0 for safty\n");
             my_mail->msg_count = 0;
         }
         atomic_dec(&(my_mail -> r_w));
