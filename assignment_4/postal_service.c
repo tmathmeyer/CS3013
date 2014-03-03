@@ -250,7 +250,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 
     if (!recipient)
     {
-        struct task_struct* ts = find_vpid(recip);
+        struct task_struct* ts = pid_task(find_vpid(recip));
         if (ts -> pid != recip || ts -> mm == 0)
         {
             return MAILBOX_INVALID;
