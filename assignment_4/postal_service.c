@@ -264,7 +264,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
 
     do
     {
-        printk("SENDING Q.length=%i\n", atomic_read(&(recipient -> r_w)));
+        printk("SENDING TO: %i Q.length=%i\n",(int)recip, atomic_read(&(recipient -> r_w)));
         wait_event(recipient -> access, atomic_read(&(recipient -> r_w)) == 0);
         atomic_inc(&(recipient -> r_w));
 
