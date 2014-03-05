@@ -11,7 +11,7 @@ int main()
 	int proc = 0;
 	printf("please enter the process to send to \n");
 	scanf ("%d",&proc);
-	char* msg = "hello recieving processes!"
+	char* msg = "hello recieving processes!";
 	int i = 0;
 	int err = 0;
 
