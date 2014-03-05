@@ -1,12 +1,12 @@
 ╔═Project 4 Kernel Messaging System writeup════════════════════════════════════╗
-║                                            ╔══════════════════════════════╗  ║
-║        Ted Meyer                           ║ github.com/tmathmeyer/CS3013 ║  ║
-║                                            ║    public after due date     ║  ║
-║                                            ╚══════════════════════════════╝  ║
+║                                    ╔══════════════════════════════╗          ║
+║             Ted Meyer              ║ github.com/tmathmeyer/CS3013 ║          ║
+║                                    ║    public after due date     ║          ║
+║       border characters rock       ╚══════════════════════════════╝          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║╔════════════════════════════════════════════════════════════════════════════╗║
-║║ Memory Allocation                                                          ║║
-║║  one of the big things that we talked about in class was memory management ║║
+║                                                                              ║
+║╔═Memory Allocation══════════════════════════════════════════════════════════╗║
+║║  One of the big things that we talked about in class was memory management ║║
 ║║  and the use of the slab allocator for this project. My program has three  ║║
 ║║  main memory structures:                                                   ║║
 ║║      messages                                                              ║║
@@ -16,41 +16,44 @@
 ║║  besides those types, I used kmalloc once, to allocation space for the     ║║
 ║║  pointer to pointers of map elements, since it is only ever being used once║║
 ║║  and creating a slab specifically for it would be more wasteful than       ║║
-║║  beneficial                                                                ║║
+║║  beneficial. All memory is freed apon the kernel module being unloaded as  ║║
+║║  well.                                                                     ║║
+║╚════════════════════════════════════════════════════════════════════════════╝║
+║                                                                              ║
+║╔═Race Conditions════════════════════════════════════════════════════════════╗║
+║║  The main race condition in this assignment is making sure that each       ║║
+║║  mailbox does not have multiple threads trying to add messages to it at the║║
+║║  same time and overwriting eachother's pointers or breaking the counter    ║║
+║║  for the total number of messages. This race condition was solved by using ║║
+║║  a waitqueue before each of the operations that might affect the mailbox   ║║
+║║  struct in any way. The wait queue uses atomic operations to increment and ║║
+║║  check a counter in each mailbox struct that counts the number of threads  ║║
+║║  currently trying to modify the mailbox. This makes sure that there are no ║║
+║║  instances of two threads colliding and causing memory issues. The other   ║║
+║║  race condition was making sure that there were no threads still trying to ║║
+║║  access the mailbox when it was trying to be deleted. When the mailbox is  ║║
+║║  deleted, it simply deletes the pointers, and this will unlock the rest of ║║
+║║  the waiting threads, which will detect that it has been deleted, and      ║║
+║║  return an error saying that the mailbox is invalid.                       ║║
+║╚════════════════════════════════════════════════════════════════════════════╝║
+║                                                                              ║
+║╔═Testing════════════════════════════════════════════════════════════════════╗║
+║║  In order to test this LKM, I ran the tests 5, 6, and 7 that were proveded ║║
+║║  for us in the zip file in the assignment description. All of them ran just║║
+║║  fine, (ie, no errors shown either in the output in userspace or in dmesg).║║
+║║  The other method I used for testing was writing two reletively simple     ║║
+║║  programs, 'cons' and 'consread'. Consread simply sits in a while(1) loop  ║║
+║║  and waits (blocking) for new mail. Once it gets any mail, it immediatly   ║║
+║║  sends back to the sender, saying "I got your mail!". This made it really  ║║
+║║  The Cons program has a defined number of messages to send, and a defined  ║║
+║║  delay between each send. It also spawned a thread that would simply wait  ║║
+║║  for mail and print what it got with a timestamp. This allowed me to test  ║║
+║║  not only blocking on the mailbox being delteted / empty / full, but to    ║║
+║║  test multiple processes all spamming one mailbox at the same time, without║║
+║║  having to write a million separate programs.                              ║║
+║╚════════════════════════════════════════════════════════════════════════════╝║
+║                                                                              ║
+║╔═Output of Tests════════════════════════════════════════════════════════════╗║
 ║║                                                                            ║║
-║║                                                                            ║║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-║                                                                              ║
-
+║╚════════════════════════════════════════════════════════════════════════════╝║
+╚══════════════════════════════════════════════════════════════════════════════╝
