@@ -20,7 +20,7 @@ test5: mailbox.o testmailbox5.c
 	gcc -Wall testmailbox5.c mailbox.o -o test5
 
 test6: mailbox.o testmailbox6.c
-	gcc -Wall testmailbox6.c mailbox.o -o test6
+	gcc -Wall testmailbox6.c mailbox.o -o test6 -lpthread
 
 test7: mailbox.o testmailbox7.c
 	gcc -Wall testmailbox7.c mailbox.o -o test7
