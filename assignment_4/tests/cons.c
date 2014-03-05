@@ -8,6 +8,9 @@
 
 int main()
 {
+	pthread_t newThread;
+	pthread_create(&newThread, NULL, readmsgs);
+	
 	int proc = 0;
 	printf("please enter the process to send to \n");
 	scanf ("%d",&proc);
@@ -25,4 +28,26 @@ int main()
 		}
 	}
 	
+}
+
+
+void *readmsgs()
+{
+	pid_t sender;
+	char* msg;
+	int len, err, i=0;
+
+    for(;i<SENDCOUNT;i++)
+	{
+		if (err = RcvMsg(&sender, (void*)msg, &len, BLOCK))
+		{
+			printf("error: %i\n", err);
+			i = SENDCOUNT;
+		}
+		else
+		{
+			printf("mail send back from: %i\n", (int)sender);
+			printf("contents:\n\t%s\n", msg);
+		}
+	}
 }
