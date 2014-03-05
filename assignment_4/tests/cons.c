@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
+#include <stdlib.h>
+
 
 #define SENDCOUNT 10
 #define PAUSETIME 0
@@ -45,7 +47,7 @@ void *readmsgs()
     for(;i<SENDCOUNT;i++)
 	{
 		msg = (char*)malloc(MAX_MSG_SIZE);
-		if (err = RcvMsg(&sender, (void*)msg, &len, BLOCK))
+		if ((err = RcvMsg(&sender, (void*)msg, &len, BLOCK)))
 		{
 			printf("error: %i\n", err);
 			i = SENDCOUNT;
