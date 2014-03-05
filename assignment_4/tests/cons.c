@@ -25,7 +25,7 @@ int main()
 
 	for(;i<SENDCOUNT;i++)
 	{
-		if (err = SendMsg(proc, msg, strlen(msg), NO_BLOCK))
+		if ((err = SendMsg(proc, msg, strlen(msg), NO_BLOCK)))
 		{
 			printf("error: %i\n", err);
 			i = SENDCOUNT;
@@ -44,7 +44,7 @@ void *readmsgs()
 
     for(;i<SENDCOUNT;i++)
 	{
-		msg = (char*)calloc(MAX_MSG_SIZE);
+		msg = (char*)malloc(MAX_MSG_SIZE);
 		if (err = RcvMsg(&sender, (void*)msg, &len, BLOCK))
 		{
 			printf("error: %i\n", err);
