@@ -19,19 +19,18 @@ int main()
 	{
 		printf("waiting\n");
 		msg = (char*)malloc(MAX_MSG_SIZE);
-		if (zz = RcvMsg(&sender, (void*)msg, &len, BLOCK))
+		if ((zz = RcvMsg(&sender, (void*)msg, &len, BLOCK)))
 		{
 			printf("error: %i\n", zz);
-			return;
 		}
-		else if (!strncmp(msg, "kill", 4))
+		else if ((!strncmp(msg, "kill", 4)))
 		{
-			return;
+			return 0;
 		}
 		else
 		{
 			printf("process id:%i, sent:\n\t%s\n", (int)sender, msg);
-			if (zz = SendMsg(sender, send, strlen(send), NO_BLOCK))
+			if ((zz = SendMsg(sender, send, strlen(send), NO_BLOCK)))
 			{
 				printf("error: %i\n", zz);
 			}

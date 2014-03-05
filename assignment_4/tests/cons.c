@@ -8,7 +8,7 @@
 
 
 #define SENDCOUNT 10
-#define PAUSETIME 1000
+#define PAUSETIME 1000000
 
 int main()
 {

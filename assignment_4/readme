@@ -57,3 +57,131 @@
 ║║                                                                            ║║
 ║╚════════════════════════════════════════════════════════════════════════════╝║
 ╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+
+$ ./consread 
+proc_id: 8297
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8345, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8345, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8345, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8345, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8345, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8345, sent:
+	hello recieving processes!
+waiting
+process id:8296, sent:
+	hello recieving processes!
+waiting
+process id:8345, sent:
+	hello recieving processes!
+waiting
+
+
+
+
+
+
+
+
+
+$ ./cons
+please enter the process to send to 
+8297
+trying to read replies!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+
+
+$ ./cons
+please enter the process to send to 
+8297
+trying to read replies!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+mail sent back from: 8297
+contents:
+	I got your mail!
+
