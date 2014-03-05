@@ -13,7 +13,7 @@ void *readmsgs();
 int main()
 {
 	pthread_t newThread;
-	pthread_create(&newThread, NULL, readmsgs);
+	pthread_create(&newThread, NULL, readmsgs, NULL);
 	
 	int proc = 0;
 	printf("please enter the process to send to \n");
