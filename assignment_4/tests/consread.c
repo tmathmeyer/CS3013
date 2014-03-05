@@ -26,7 +26,10 @@ int main()
 		else
 		{
 			printf("process id:%i, sent:\n\t%s\n", (int)sender, msg);
-			SendMsg(sender, send, strlen(send), NO_BLOCK);
+			if (zz = SendMsg(sender, send, strlen(send), NO_BLOCK))
+			{
+				printf("error: %i\n", zz);
+			}
 		}
 		free(msg);
 	}
