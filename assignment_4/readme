@@ -1,0 +1,56 @@
+╔═Project 4 Kernel Messaging System writeup════════════════════════════════════╗
+║                                            ╔══════════════════════════════╗  ║
+║        Ted Meyer                           ║ github.com/tmathmeyer/CS3013 ║  ║
+║                                            ║    public after due date     ║  ║
+║                                            ╚══════════════════════════════╝  ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║╔════════════════════════════════════════════════════════════════════════════╗║
+║║ Memory Allocation                                                          ║║
+║║  one of the big things that we talked about in class was memory management ║║
+║║  and the use of the slab allocator for this project. My program has three  ║║
+║║  main memory structures:                                                   ║║
+║║      messages                                                              ║║
+║║      mailboxes                                                             ║║
+║║      hashmap elements                                                      ║║
+║║  each of these three memory types got their own kmem_cache for allocation. ║║
+║║  besides those types, I used kmalloc once, to allocation space for the     ║║
+║║  pointer to pointers of map elements, since it is only ever being used once║║
+║║  and creating a slab specifically for it would be more wasteful than       ║║
+║║  beneficial                                                                ║║
+║║                                                                            ║║
+║║                                                                            ║║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+║                                                                              ║
+
