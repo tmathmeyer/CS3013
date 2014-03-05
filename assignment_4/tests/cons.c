@@ -9,7 +9,7 @@
 
 
 #define SENDCOUNT 10
-#define PAUSETIME 0
+#define PAUSETIME 1000
 void *readmsgs();
 
 int main()

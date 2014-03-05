@@ -349,6 +349,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     do
     {
         printk("RECV blocking? %s\n", block?"yes":"no");
+        printk("RECV PID=%i", (int)current->pid);
         printk("RECV Q.length=%i\n", atomic_read(&(my_mail -> r_w)));
         printk("     M.length=%i\n", my_mail -> msg_count);
         // entry condition:
