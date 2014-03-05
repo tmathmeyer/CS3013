@@ -44,6 +44,7 @@ void *readmsgs()
 
     for(;i<SENDCOUNT;i++)
 	{
+		msg = (char*)calloc(MAX_MSG_SIZE);
 		if (err = RcvMsg(&sender, (void*)msg, &len, BLOCK))
 		{
 			printf("error: %i\n", err);
@@ -54,5 +55,6 @@ void *readmsgs()
 			printf("mail send back from: %i\n", (int)sender);
 			printf("contents:\n\t%s\n", msg);
 		}
+		free(msg);
 	}
 }
