@@ -4,19 +4,23 @@
 #include <stdio.h>
 #include <string.h>
 
+#define SENDCOUNT 10
+
 int main()
 {
-	char msg[MAX_MSG_SIZE];
-	int proc = 1;
+	printf("please enter the process to send to \n");
+	scanf ("%d",&proc);
+	char* msg = "hello recieving processes!"
+	int i = 0;
+	int err = 0;
 
-	while(proc)
+
+	for(;i<SENDCOUNT;i++)
 	{
-		scanf ("%d",&proc);
-		scanf ("%s",msg);
-
-		if (proc && SendMsg(proc, msg, strlen(msg), NO_BLOCK))
+		if (err = SendMsg(proc, msg, strlen(msg), NO_BLOCK))
 		{
-			printf("error!\n");
+			printf("error: %i\n", err);
+			i = SENDCOUNT;
 		}
 	}
 	
