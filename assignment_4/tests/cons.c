@@ -8,6 +8,7 @@
 
 int main()
 {
+	int proc = 0;
 	printf("please enter the process to send to \n");
 	scanf ("%d",&proc);
 	char* msg = "hello recieving processes!"
