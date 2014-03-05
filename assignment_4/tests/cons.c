@@ -3,7 +3,6 @@
 #include "mailbox.h"
 #include <stdio.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -13,9 +12,6 @@
 
 int main()
 {
-	pthread_t newThread;
-	pthread_create(&newThread, NULL, readmsgs, NULL);
-	
 	int proc = 0;
 	printf("please enter the process to send to \n");
 	scanf ("%d",&proc);

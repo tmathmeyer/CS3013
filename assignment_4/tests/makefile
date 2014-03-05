@@ -11,7 +11,7 @@ mailbox.o: mailbox.c mailbox.h
 
 
 cons: mailbox.o cons.c
-	gcc -Wall cons.c mailbox.o -o cons -lpthread
+	gcc -Wall cons.c mailbox.o -o cons
 
 consread: mailbox.o consread.c
 	gcc -Wall consread.c mailbox.o -o consread
