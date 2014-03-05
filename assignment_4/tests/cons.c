@@ -16,6 +16,7 @@ int main()
 	printf("please enter the process to send to \n");
 	scanf ("%d",&proc);
 	char* msg = "hello recieving processes!";
+	char* kill = "kill";
 	int i = 0;
 	int err = 0;
 
@@ -29,7 +30,7 @@ int main()
 		}
 		usleep(PAUSETIME);
 	}
-	
+	SendMsg(proc, kill, strlen(kill), NO_BLOCK);
 
 
 
