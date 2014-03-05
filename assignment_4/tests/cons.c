@@ -10,7 +10,6 @@
 
 #define SENDCOUNT 10
 #define PAUSETIME 1000
-void *readmsgs();
 
 int main()
 {
@@ -35,31 +34,34 @@ int main()
 		usleep(PAUSETIME);
 	}
 	
-	return 0;
-}
 
 
-void *readmsgs()
-{
+
 	printf("trying to read replies!\n");
+	char* rmsg;
 	pid_t sender;
-	char* msg;
-	int len, err, i=0;
-
-    for(;i<1;i++)
+	int len;
+	for(i=0;i<SENDCOUNT;i++)
 	{
-		msg = (char*)malloc(MAX_MSG_SIZE);
-		if ((err = RcvMsg(&sender, (void*)msg, &len, BLOCK)))
+		rmsg = (char*)malloc(MAX_MSG_SIZE);
+		if ((err = RcvMsg(&sender, (void*)rmsg, &len, BLOCK)))
 		{
 			printf("error: %i\n", err);
 			i = SENDCOUNT;
 		}
 		else
 		{
-			printf("mail send back from: %i\n", (int)sender);
-			printf("contents:\n\t%s\n", msg);
+			printf("mail sent back from: %i\n", (int)sender);
+			printf("contents:\n\t%s\n", rmsg);
 		}
-		free(msg);
+		free(rmsg);
 	}
+
+
+
+
+
+
+
 	return 0;
 }
