@@ -35,6 +35,7 @@ int main()
 		usleep(PAUSETIME);
 	}
 	
+	return 0;
 }
 
 
@@ -59,4 +60,5 @@ void *readmsgs()
 		}
 		free(msg);
 	}
+	return 0;
 }
