@@ -22,6 +22,11 @@ int main()
 		if (zz = RcvMsg(&sender, (void*)msg, &len, BLOCK))
 		{
 			printf("error: %i\n", zz);
+			return;
+		}
+		else if (!strncmp(msg, "kill", 4))
+		{
+			return;
 		}
 		else
 		{
