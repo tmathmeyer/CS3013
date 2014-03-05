@@ -18,7 +18,7 @@ int main()
 	do
 	{
 		printf("waiting\n");
-		msg = (char*)calloc(MAX_MSG_SIZE);
+		msg = (char*)malloc(MAX_MSG_SIZE);
 		if (zz = RcvMsg(&sender, (void*)msg, &len, BLOCK))
 		{
 			printf("error: %i\n", zz);
