@@ -2,9 +2,13 @@
 
 #include "mailbox.h"
 #include <stdio.h>
+#include <unistd.h>
+#include <pthread.h>
 #include <string.h>
 
 #define SENDCOUNT 10
+#define PAUSETIME 0
+void *readmsgs();
 
 int main()
 {
@@ -26,6 +30,7 @@ int main()
 			printf("error: %i\n", err);
 			i = SENDCOUNT;
 		}
+		usleep(PAUSETIME);
 	}
 	
 }
