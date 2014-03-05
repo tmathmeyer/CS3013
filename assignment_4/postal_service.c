@@ -246,7 +246,7 @@ asmlinkage long send_message(pid_t recip, void* mesg, int len, bool block)
     message* msg;
     int count;
     
-    printk(KERN_INFO "sending to: %i", (int)recip);
+    printk(KERN_INFO "sending to: %i\n", (int)recip);
     recipient = map_get(recip);
 
     if (!recipient)
@@ -349,7 +349,7 @@ asmlinkage long receive(pid_t* sender, void* mesg, int* len, bool block)
     do
     {
         printk("RECV blocking? %s\n", block?"yes":"no");
-        printk("RECV PID=%i", (int)current->pid);
+        printk("RECV PID=%i\n", (int)current->pid);
         printk("RECV Q.length=%i\n", atomic_read(&(my_mail -> r_w)));
         printk("     M.length=%i\n", my_mail -> msg_count);
         // entry condition:
