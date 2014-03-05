@@ -41,11 +41,12 @@ int main()
 
 void *readmsgs()
 {
+	printf("trying to read replies!\n");
 	pid_t sender;
 	char* msg;
 	int len, err, i=0;
 
-    for(;i<SENDCOUNT;i++)
+    for(;i<1;i++)
 	{
 		msg = (char*)malloc(MAX_MSG_SIZE);
 		if ((err = RcvMsg(&sender, (void*)msg, &len, BLOCK)))
